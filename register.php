@@ -15,7 +15,9 @@ $errorMessages = [
     'reg_email' => "Invalid Email format",
     'email_in_use' => "Email already in use",
     'password_mismatch' => "Passwords do not match",
-    'password_length' => "Your password must be between 5 and 30 characters"
+    'password_length' => "Your password must be between 5 and 30 characters",
+    'username_in_use' => "Username is already being used",
+    'success' => "Registration successful. Sign in!"
 ];
 
 if (isset($_POST['reg_button'])) {
@@ -23,10 +25,10 @@ if (isset($_POST['reg_button'])) {
     // Register form values
     $firstName = sanitizeInput($_POST['reg_name']);
     $surname = sanitizeInput($_POST['reg_surname']);
-    $email = sanitizeInput($_POST['reg_email']);
-    $username = sanitizeInput($_POST['reg_username']);
-    $password = sanitizeInput($_POST['reg_password']);
-    $password2 = sanitizeInput($_POST['reg_password_repeat']);
+    $email = sanitizeInput($_POST['reg_email'], false);
+    $username = sanitizeInput($_POST['reg_username'], false);
+    $password = sanitizeInput($_POST['reg_password'], false);
+    $password2 = sanitizeInput($_POST['reg_password_repeat'], false);
 
     $_SESSION['reg_name'] = $firstName;
     $_SESSION['reg_surname'] = $surname;
@@ -61,14 +63,58 @@ if (isset($_POST['reg_button'])) {
     if (!validateLength($password, 5, 30)) {
         $errors[] = 'password_length';
     }
+
+    $checkUsername = mysqli_query($connection, "SELECT username FROM users WHERE username='$username'");
+    $numOfRows = mysqli_num_rows($checkUsername);
+    if ($numOfRows > 0) {
+        $errors[] = 'username_in_use';
+    }
+
+        $password = md5($password); 
+        $random = rand(1,5);
+        $profilePicture = "";
+
+        switch ($random) {
+            case 1:
+                $profilePicture = "./assets/defaults/user_icon.png";
+                break;
+            case 2:
+                $profilePicture = "./assets/defaults/user_icon_02.png";
+                break;
+            case 3:
+                $profilePicture = "./assets/defaults/user_icon_03.png";
+                break;
+            case 4:
+                $profilePicture = "./assets/defaults/user_icon_04.png";
+                break;
+            
+            default:
+                $profilePicture = "./assets/defaults/user_icon.png";
+                break;
+        }
+
+    $query = mysqli_query($connection, "INSERT INTO users (username,firstname, surname, email, password, register_date, profile_picture, posts, likes, profile_closed, friends) 
+    VALUES ('$username','$firstName', '$surname', '$email', '$password', '$date', '$profilePicture', '0', '0', 'no', ',')");
+    
+    $_SESSION['reg_name'] = "";
+    $_SESSION['reg_surname'] = "";
+    $_SESSION['reg_username'] = "";
+    $_SESSION['reg_password'] = "";
+    $_SESSION['reg_password_repeat'] = "";    
+
 }
 
 // Helper function to sanitize input
-function sanitizeInput($input)
+function sanitizeInput($input, $firstLetterUP=true)
 {
     $input = strip_tags($input);
     $input = str_replace(' ', '', $input);
-    return ucfirst(strtolower($input));
+
+    if($firstLetterUP){
+        return ucfirst(strtolower($input));
+    }else{
+        return $input;
+    }
 }
 
 // Helper function to validate length
@@ -122,6 +168,11 @@ function displayError($errorCode, $errorMessages)
         if (in_array('reg_username', $errors)) {
             displayError('reg_username', $errorMessages);
         }
+
+        if (in_array('reg_username', $errors)) {
+            displayError('reg_username', $errorMessages);
+        }
+        
         ?><br><br>
 
         <input type="email" name="reg_email" placeholder="email@example.com" value="<?= $_SESSION['reg_email'] ?? '' ?>">
@@ -137,6 +188,7 @@ function displayError($errorCode, $errorMessages)
         <input type="password" name="reg_password_repeat" placeholder="Confirm password"><br><br><br>
 
         <input type="submit" name="reg_button" value="Register">
+        
     </form>
 </body>
 </html>
