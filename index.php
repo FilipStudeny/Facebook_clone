@@ -1,15 +1,7 @@
+
 <?php
-
-    $connection = mysqli_connect("localhost","root","","SocialApp");
-
-    if(mysqli_connect_errno()){
-        echo "ERROR CONNECTING TO DB" . mysqli_connect_errno();
-    }
-
-
-
+    require './config/DBconnection.php';
 ?>
-
 
 <!DOCTYPE html>
 <html lang="cs">

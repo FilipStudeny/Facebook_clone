@@ -1,136 +1,133 @@
 <?php
-session_start(); // Start a session
 
-$connection = mysqli_connect("localhost", "root", "", "SocialApp");
-if (mysqli_connect_errno()) {
-    echo "ERROR CONNECTING TO DB" . mysqli_connect_errno();
-}
+    require './config/DBconnection.php';
 
-$errors = [];
+    $errors = [];
+    $errorMessages = [
+        'reg_name' => "Firstname must be between 2 and 25 characters",
+        'reg_surname' => "Surname must be between 2 and 25 characters",
+        'reg_username' => "Username must be between 2 and 25 characters",
+        'reg_email' => "Invalid Email format",
+        'email_in_use' => "Email already in use",
+        'password_mismatch' => "Passwords do not match",
+        'password_length' => "Your password must be between 5 and 30 characters",
+        'username_in_use' => "Username is already being used",
+        'success' => "Registration successful. Sign in!"
+    ];
 
-$errorMessages = [
-    'reg_name' => "Firstname must be between 2 and 25 characters",
-    'reg_surname' => "Surname must be between 2 and 25 characters",
-    'reg_username' => "Username must be between 2 and 25 characters",
-    'reg_email' => "Invalid Email format",
-    'email_in_use' => "Email already in use",
-    'password_mismatch' => "Passwords do not match",
-    'password_length' => "Your password must be between 5 and 30 characters",
-    'username_in_use' => "Username is already being used",
-    'success' => "Registration successful. Sign in!"
-];
+    if (isset($_POST['reg_button'])) {
+        
+        // Register form values
+        $firstName = sanitizeInput($_POST['reg_name']);
+        $surname = sanitizeInput($_POST['reg_surname']);
+        $email = sanitizeInput($_POST['reg_email'], false);
+        $username = sanitizeInput($_POST['reg_username'], false);
+        $password = sanitizeInput($_POST['reg_password'], false);
+        $password2 = sanitizeInput($_POST['reg_password_repeat'], false);
 
-if (isset($_POST['reg_button'])) {
-    
-    // Register form values
-    $firstName = sanitizeInput($_POST['reg_name']);
-    $surname = sanitizeInput($_POST['reg_surname']);
-    $email = sanitizeInput($_POST['reg_email'], false);
-    $username = sanitizeInput($_POST['reg_username'], false);
-    $password = sanitizeInput($_POST['reg_password'], false);
-    $password2 = sanitizeInput($_POST['reg_password_repeat'], false);
+        $_SESSION['reg_name'] = $firstName;
+        $_SESSION['reg_surname'] = $surname;
+        $_SESSION['reg_username'] = $username;
+        $_SESSION['reg_password'] = $password;
+        $_SESSION['reg_password_repeat'] = $password2;
 
-    $_SESSION['reg_name'] = $firstName;
-    $_SESSION['reg_surname'] = $surname;
-    $_SESSION['reg_username'] = $username;
-    $_SESSION['reg_password'] = $password;
-    $_SESSION['reg_password_repeat'] = $password2;
+        $date = date("Y-m-d");
 
-    $date = date("Y-m-d");
+        if ($password != $password2) {
+            $errors[] = 'password_mismatch';
+        }
 
-    if ($password != $password2) {
-        $errors[] = 'password_mismatch';
-    }
+        if (!validateLength($firstName, 2, 25)) {
+            $errors[] = 'reg_name';
+        }
 
-    if (!validateLength($firstName, 2, 25)) {
-        $errors[] = 'reg_name';
-    }
+        if (!validateLength($surname, 2, 25)) {
+            $errors[] = 'reg_surname';
+        }
 
-    if (!validateLength($surname, 2, 25)) {
-        $errors[] = 'reg_surname';
-    }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'reg_email';
+        } else {
+            $emailCheck = mysqli_query($connection, "SELECT email FROM users WHERE email='$email'");
+            $numOfRows = mysqli_num_rows($emailCheck);
+            if ($numOfRows > 0) {
+                $errors[] = 'email_in_use';
+            }
+        }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'reg_email';
-    } else {
-        $emailCheck = mysqli_query($connection, "SELECT email FROM users WHERE email='$email'");
-        $numOfRows = mysqli_num_rows($emailCheck);
+        if (!validateLength($password, 5, 30)) {
+            $errors[] = 'password_length';
+        }
+
+        $checkUsername = mysqli_query($connection, "SELECT username FROM users WHERE username='$username'");
+        $numOfRows = mysqli_num_rows($checkUsername);
         if ($numOfRows > 0) {
-            $errors[] = 'email_in_use';
+            $errors[] = 'username_in_use';
+        }
+
+            $password = md5($password); 
+            $random = rand(1,5);
+            $profilePicture = "";
+
+            switch ($random) {
+                case 1:
+                    $profilePicture = "./assets/defaults/user_icon.png";
+                    break;
+                case 2:
+                    $profilePicture = "./assets/defaults/user_icon_02.png";
+                    break;
+                case 3:
+                    $profilePicture = "./assets/defaults/user_icon_03.png";
+                    break;
+                case 4:
+                    $profilePicture = "./assets/defaults/user_icon_04.png";
+                    break;
+                
+                default:
+                    $profilePicture = "./assets/defaults/user_icon.png";
+                    break;
+            }
+
+        $query = mysqli_query($connection, "INSERT INTO users (username,firstname, surname, email, password, register_date, profile_picture, posts, likes, profile_closed, friends) 
+        VALUES ('$username','$firstName', '$surname', '$email', '$password', '$date', '$profilePicture', '0', '0', 'no', ',')");
+        
+        $_SESSION['reg_name'] = "";
+        $_SESSION['reg_surname'] = "";
+        $_SESSION['reg_username'] = "";
+        $_SESSION['reg_password'] = "";
+        $_SESSION['reg_password_repeat'] = "";    
+
+        session_destroy();
+
+    }
+
+    // Helper function to sanitize input
+    function sanitizeInput($input, $firstLetterUP=true)
+    {
+        $input = strip_tags($input);
+        $input = str_replace(' ', '', $input);
+
+        if($firstLetterUP){
+            return ucfirst(strtolower($input));
+        }else{
+            return $input;
         }
     }
 
-    if (!validateLength($password, 5, 30)) {
-        $errors[] = 'password_length';
+    // Helper function to validate length
+    function validateLength($input, $minLength, $maxLength)
+    {
+        $length = strlen($input);
+        return ($length >= $minLength && $length <= $maxLength);
     }
 
-    $checkUsername = mysqli_query($connection, "SELECT username FROM users WHERE username='$username'");
-    $numOfRows = mysqli_num_rows($checkUsername);
-    if ($numOfRows > 0) {
-        $errors[] = 'username_in_use';
-    }
-
-        $password = md5($password); 
-        $random = rand(1,5);
-        $profilePicture = "";
-
-        switch ($random) {
-            case 1:
-                $profilePicture = "./assets/defaults/user_icon.png";
-                break;
-            case 2:
-                $profilePicture = "./assets/defaults/user_icon_02.png";
-                break;
-            case 3:
-                $profilePicture = "./assets/defaults/user_icon_03.png";
-                break;
-            case 4:
-                $profilePicture = "./assets/defaults/user_icon_04.png";
-                break;
-            
-            default:
-                $profilePicture = "./assets/defaults/user_icon.png";
-                break;
+    // Helper function to display error messages
+    function displayError($errorCode, $errorMessages)
+    {
+        if (isset($errorMessages[$errorCode])) {
+            echo "<span class='error'>{$errorMessages[$errorCode]}</span><br>";
         }
-
-    $query = mysqli_query($connection, "INSERT INTO users (username,firstname, surname, email, password, register_date, profile_picture, posts, likes, profile_closed, friends) 
-    VALUES ('$username','$firstName', '$surname', '$email', '$password', '$date', '$profilePicture', '0', '0', 'no', ',')");
-    
-    $_SESSION['reg_name'] = "";
-    $_SESSION['reg_surname'] = "";
-    $_SESSION['reg_username'] = "";
-    $_SESSION['reg_password'] = "";
-    $_SESSION['reg_password_repeat'] = "";    
-
-}
-
-// Helper function to sanitize input
-function sanitizeInput($input, $firstLetterUP=true)
-{
-    $input = strip_tags($input);
-    $input = str_replace(' ', '', $input);
-
-    if($firstLetterUP){
-        return ucfirst(strtolower($input));
-    }else{
-        return $input;
     }
-}
-
-// Helper function to validate length
-function validateLength($input, $minLength, $maxLength)
-{
-    $length = strlen($input);
-    return ($length >= $minLength && $length <= $maxLength);
-}
-
-// Helper function to display error messages
-function displayError($errorCode, $errorMessages)
-{
-    if (isset($errorMessages[$errorCode])) {
-        echo "<span class='error'>{$errorMessages[$errorCode]}</span><br>";
-    }
-}
 ?>
 
 <!DOCTYPE html>
