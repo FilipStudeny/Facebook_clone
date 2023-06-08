@@ -1,6 +1,6 @@
 <?php
-
-    require './config/DBconnection.php';
+    require_once "./config/DBconnection.php";
+    require_once "./lib/helpers.php";
 
     $errors = [];
     $errorMessages = [
@@ -12,10 +12,16 @@
         'password_mismatch' => "Passwords do not match",
         'password_length' => "Your password must be between 5 and 30 characters",
         'username_in_use' => "Username is already being used",
-        'success' => "Registration successful. Sign in!"
+        'success' => "Registration successful. Sign in!",
+        'input_fields_empty' => "Make sure to fill out all input fields"
     ];
+    $isEmpty = empty($_POST['reg_name']) || empty($_POST['reg_surname']) || empty($_POST['reg_username']) || empty($_POST['reg_email']) || empty($_POST['reg_password']) || empty($_POST['reg_password_repeat']);
 
-    if (isset($_POST['reg_button'])) {
+    if($isEmpty){
+        $errors[] = 'input_fields_empty';
+    }
+
+    if (isset($_POST['reg_button']) && !$isEmpty) {
         
         // Register form values
         $firstName = sanitizeInput($_POST['reg_name']);
@@ -98,94 +104,76 @@
         $_SESSION['reg_password_repeat'] = "";    
 
         session_destroy();
+        header("Location: login.php");
 
     }
 
-    // Helper function to sanitize input
-    function sanitizeInput($input, $firstLetterUP=true)
-    {
-        $input = strip_tags($input);
-        $input = str_replace(' ', '', $input);
 
-        if($firstLetterUP){
-            return ucfirst(strtolower($input));
-        }else{
-            return $input;
-        }
-    }
-
-    // Helper function to validate length
-    function validateLength($input, $minLength, $maxLength)
-    {
-        $length = strlen($input);
-        return ($length >= $minLength && $length <= $maxLength);
-    }
-
-    // Helper function to display error messages
-    function displayError($errorCode, $errorMessages)
-    {
-        if (isset($errorMessages[$errorCode])) {
-            echo "<span class='error'>{$errorMessages[$errorCode]}</span><br>";
-        }
-    }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social App | Register</title>
-    <style>
-        .error {
-            color: red;
-            font-weight: bold;
-        }
-    </style>
-</head>
+<?php include("./components/header.php") ?>
+
 <body>
-    <form action="register.php" method="POST">
-        <input type="text" name="reg_name" placeholder="Firstname" value="<?= $_SESSION['reg_name'] ?? '' ?>">
-        <?php
-        if (in_array('reg_name', $errors)) {
-            displayError('reg_name', $errorMessages);
-        }
-        ?><br>
 
-        <input type="text" name="reg_surname" placeholder="Surname" value="<?= $_SESSION['reg_surname'] ?? '' ?>">
-        <?php
-        if (in_array('reg_surname', $errors)) {
-            displayError('reg_surname', $errorMessages);
-        }
-        ?><br>
+    <div class="wrapper">
+            
+        <div class="box">
+            <div class="box_header">
+                <h3>Social app</h3>
+            </div>
+            <form action="register.php" method="POST">
+                <input type="text" name="reg_name" placeholder="Firstname" value="<?= $_SESSION['reg_name'] ?? '' ?>">
+                <input type="text" name="reg_surname" placeholder="Surname" value="<?= $_SESSION['reg_surname'] ?? '' ?>">
+                <input type="text" name="reg_username" placeholder="Username" value="<?= $_SESSION['reg_username'] ?? '' ?>">
+                <input type="email" name="reg_email" placeholder="email@example.com" value="<?= $_SESSION['reg_email'] ?? '' ?>">
+                <input type="password" name="reg_password" placeholder="Password"><br>
+                <input type="password" name="reg_password_repeat" placeholder="Confirm password"><br><br><br>
 
-        <input type="text" name="reg_username" placeholder="Username" value="<?= $_SESSION['reg_username'] ?? '' ?>">
-        <?php
-        if (in_array('reg_username', $errors)) {
-            displayError('reg_username', $errorMessages);
-        }
+                <input type="submit" name="reg_button" value="Sign up">
 
-        if (in_array('reg_username', $errors)) {
-            displayError('reg_username', $errorMessages);
-        }
-        
-        ?><br><br>
+                <?php if(!empty($errors)): ?>
+                    <div class="form_errors">
+                        <?php
+                            if (in_array('input_fields_empty', $errors)) {
+                                displayError('input_fields_empty', $errorMessages);
+                            }
+                        ?>
+                        <?php
+                            if (in_array('reg_name', $errors)) {
+                                displayError('reg_name', $errorMessages);
+                            }
+                        ?>
+                        <?php
+                            if (in_array('reg_surname', $errors)) {
+                                displayError('reg_surname', $errorMessages);
+                            }
+                        ?>
+                        <?php
+                            if (in_array('reg_username', $errors)) {
+                                displayError('reg_username', $errorMessages);
+                            }
 
-        <input type="email" name="reg_email" placeholder="email@example.com" value="<?= $_SESSION['reg_email'] ?? '' ?>">
-        <?php
-        if (in_array('reg_email', $errors)) {
-            displayError('reg_email', $errorMessages);
-        } elseif (in_array('email_in_use', $errors)) {
-            displayError('email_in_use', $errorMessages);
-        }
-        ?><br>
+                            if (in_array('reg_username', $errors)) {
+                                displayError('reg_username', $errorMessages);
+                            }
+                        ?>
+                        <?php
+                            if (in_array('reg_email', $errors)) {
+                                displayError('reg_email', $errorMessages);
+                            } elseif (in_array('email_in_use', $errors)) {
+                                displayError('email_in_use', $errorMessages);
+                            }
+                        ?>
+                    </div>
+                <?php endif ?>
+                <div class="box_links">
+                    <a href="/login.php">Sign into your profile</a>
+                    <a href="/">Home page</a>
+                </div>
+            </form>
 
-        <input type="password" name="reg_password" placeholder="Password"><br>
-        <input type="password" name="reg_password_repeat" placeholder="Confirm password"><br><br><br>
-
-        <input type="submit" name="reg_button" value="Register">
-        
-    </form>
+        </div>
+    </div>
 </body>
+
 </html>

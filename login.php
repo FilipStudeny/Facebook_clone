@@ -1,5 +1,7 @@
 <?php
-    require './config/DBconnection.php';
+
+    require_once "./config/DBconnection.php";
+    require_once "./lib/helpers.php";
 
     $errors = [];
     $errorMessages = [
@@ -12,10 +14,16 @@
         'password_length' => "Your password must be between 5 and 30 characters",
         'username_in_use' => "Username is already being used",
         'success' => "Registration successful. Sign in!",
-        'email_or_password_inccorect' => "Email or Password is incorrect"
+        'email_or_password_inccorect' => "Email or Password is incorrect",
+        'input_fields_empty' => "Make sure to fill out all input fields"
     ];
+    $isEmpty = empty($_POST['log_email']) || empty($_POST['log_password']);
 
-    if (isset($_POST['log_button'])) {
+    if($isEmpty){
+        $errors[] = 'input_fields_empty';
+    }
+
+    if (isset($_POST['log_button']) && !$isEmpty) {
 
         $email = filter_var($_POST['log_email'], FILTER_SANITIZE_EMAIL);
         $password = md5($_POST['log_password']);
@@ -32,6 +40,7 @@
                 $reopeAccount = mysqli_query($connection, "UPDATE users SET profile_closed='no' WHERE email='$email'");
             }
 
+            session_start();
             $_SESSION['username'] = $username;
             header("Location: index.php"); //redirect
             exit();
@@ -39,57 +48,49 @@
             $errors[] = 'email_or_password_inccorect';
         }
     }
-    // Helper function to sanitize input
-    function sanitizeInput($input, $firstLetterUP=true)
-    {
-        $input = strip_tags($input);
-        $input = str_replace(' ', '', $input);
 
-        if($firstLetterUP){
-            return ucfirst(strtolower($input));
-        }else{
-            return $input;
-        }
-    }
-
-    // Helper function to validate length
-    function validateLength($input, $minLength, $maxLength)
-    {
-        $length = strlen($input);
-        return ($length >= $minLength && $length <= $maxLength);
-    }
-
-    // Helper function to display error messages
-    function displayError($errorCode, $errorMessages)
-    {
-        if (isset($errorMessages[$errorCode])) {
-            echo "<span class='error'>{$errorMessages[$errorCode]}</span><br>";
-        }
-    }
 ?>
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social App | Login</title>
-</head>
+<?php include("./components/header.php") ?>
 <body>
 
-    <form action="login.php" method="POST">
-        <input type="text" name="log_email" placeholder="email@email.com"><br>
-        <input type="password" name="log_password" placeholder="password"><br>
-        <br><br>
-        <?php
-        if (in_array('email_or_password_inccorect', $errors)) {
-            displayError('email_or_password_inccorect', $errorMessages);
-        }
-        ?>
-        <input type="submit" name="log_button" value="Sign in">
-    </form>
+    <div class="wrapper">
+        
+        <div class="box">
+            <div class="box_header">
+                <h3>Social app</h3>
+            </div>
+            <form action="login.php" method="POST">
+                <input type="text" name="log_email" placeholder="email@email.com"><br>
+                <input type="password" name="log_password" placeholder="password"><br>
+                <br><br>
+                
+                <input type="submit" name="log_button" value="Sign in">
+
+                <?php if(!empty($errors)): ?>
+                    <div class="form_errors">
+                        <?php
+                            if (in_array('input_fields_empty', $errors)) {
+                                displayError('input_fields_empty', $errorMessages);
+                            }
+                        ?>
+                        <?php
+                            if (in_array('email_or_password_inccorect', $errors)) {
+                                displayError('email_or_password_inccorect', $errorMessages);
+                            }
+                        ?>
+                    </div>
+                <?php endif ?>
+
+                <div class="box_links">
+                    <a href="/register.php">Create a profile</a>
+                    <a href="/">Home page</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
     
 </body>
 </html>
