@@ -14,10 +14,8 @@
 <header>
     <h1>Social App</h1>
     <input>
-    <h2><?php echo $userLoggedIn ?></h2>
     <div class="header_buttons">
-        <a href="/login.php">Login</a>
-        <a href="/register.php">Register</a>
+        <a class="header_link" href="/login.php">Login</a>
+        <a class="header_link" href="/register.php">Register</a>
     </div>
-
 </header>

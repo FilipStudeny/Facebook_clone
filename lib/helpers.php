@@ -14,18 +14,20 @@
     }
 
     // Helper function to validate length
-    function validateLength($input, $minLength, $maxLength)
+    function validateLength(string $input,int $minLength,int $maxLength): bool
     {
         $length = strlen($input);
         return ($length >= $minLength && $length <= $maxLength);
     }
 
     // Helper function to display error messages
-    function displayError($errorCode, $errorMessages)
+    function displayFormError(string $errorMessage): string
     {
-        if (isset($errorMessages[$errorCode])) {
-            echo "<span class='error'>{$errorMessages[$errorCode]}</span><br>";
-        }
+        return  
+        "<li>
+            <span class='form_error'>{$errorMessage}</span><br>
+        </li>";
+        
     }
 
 ?>

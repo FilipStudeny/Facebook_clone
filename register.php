@@ -1,179 +1,168 @@
 <?php
     require_once "./config/DBconnection.php";
     require_once "./lib/helpers.php";
+    require_once "./lib/FormError.php";
 
-    $errors = [];
-    $errorMessages = [
-        'reg_name' => "Firstname must be between 2 and 25 characters",
-        'reg_surname' => "Surname must be between 2 and 25 characters",
-        'reg_username' => "Username must be between 2 and 25 characters",
-        'reg_email' => "Invalid Email format",
-        'email_in_use' => "Email already in use",
-        'password_mismatch' => "Passwords do not match",
-        'password_length' => "Your password must be between 5 and 30 characters",
-        'username_in_use' => "Username is already being used",
-        'success' => "Registration successful. Sign in!",
-        'input_fields_empty' => "Make sure to fill out all input fields"
-    ];
-    $isEmpty = empty($_POST['reg_name']) || empty($_POST['reg_surname']) || empty($_POST['reg_username']) || empty($_POST['reg_email']) || empty($_POST['reg_password']) || empty($_POST['reg_password_repeat']);
+    /** @var FormError[] $errors */
+    $errors = array();
+    if (isset($_POST['submit_btn'])) {
 
-    if($isEmpty){
-        $errors[] = 'input_fields_empty';
-    }
-
-    if (isset($_POST['reg_button']) && !$isEmpty) {
+        $isEmpty = empty($_POST['reg_username']) || empty($_POST['reg_email']) || empty($_POST['reg_firstname']) || empty($_POST['reg_surname']) || empty($_POST['reg_password']) || empty($_POST['reg_confirm_password']);
+        if($isEmpty){
+            $errors[] = new FormError("empty_input", "Make sure all inputs are filled.");
+        }
         
-        // Register form values
-        $firstName = sanitizeInput($_POST['reg_name']);
-        $surname = sanitizeInput($_POST['reg_surname']);
-        $email = sanitizeInput($_POST['reg_email'], false);
+        // sanitize input
         $username = sanitizeInput($_POST['reg_username'], false);
+        $email = sanitizeInput($_POST['reg_email'], false);
+        $firstName = sanitizeInput($_POST['reg_firstname']);
+        $surname = sanitizeInput($_POST['reg_surname']);
         $password = sanitizeInput($_POST['reg_password'], false);
-        $password2 = sanitizeInput($_POST['reg_password_repeat'], false);
+        $confirmPassword = sanitizeInput($_POST['reg_confirm_password'], false);
+        $registerDate = date("Y-m-d");
 
-        $_SESSION['reg_name'] = $firstName;
-        $_SESSION['reg_surname'] = $surname;
-        $_SESSION['reg_username'] = $username;
-        $_SESSION['reg_password'] = $password;
-        $_SESSION['reg_password_repeat'] = $password2;
+        $passwordMatch = $password == $confirmPassword;
+        $isEmail = false;
+        $isCorrectPasswordLenght = false;
+        $isCorrectUsernameLenght = false;
 
-        $date = date("Y-m-d");
+        if(!$isEmpty){
+            if(!$passwordMatch){
+                $errors[] = new FormError("passwords_mismatch", "Passwords do not match.");
+            }
 
-        if ($password != $password2) {
-            $errors[] = 'password_mismatch';
-        }
+            $isEmail = filter_var($email, FILTER_VALIDATE_EMAIL);
+            if(!$isEmail){
+                $errors[] = new FormError("invalid_email", "Make sure to enter valid email address.");
+            }
+    
+            $isCorrectPasswordLenght = validateLength($password, 5, 50);
+            if(!$isCorrectPasswordLenght){
+                $errors[] = new FormError("password_size_error", "Password size must be betwean 5 and 50.");
+            }
 
-        if (!validateLength($firstName, 2, 25)) {
-            $errors[] = 'reg_name';
-        }
-
-        if (!validateLength($surname, 2, 25)) {
-            $errors[] = 'reg_surname';
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'reg_email';
-        } else {
-            $emailCheck = mysqli_query($connection, "SELECT email FROM users WHERE email='$email'");
-            $numOfRows = mysqli_num_rows($emailCheck);
-            if ($numOfRows > 0) {
-                $errors[] = 'email_in_use';
+            $isCorrectUsernameLenght = validateLength($username, 5, 25);
+            if(!$isCorrectUsernameLenght){
+                $errors[] = new FormError("username_size_error", "Username size must be betwean 5 and 25.");
             }
         }
 
-        if (!validateLength($password, 5, 30)) {
-            $errors[] = 'password_length';
-        }
+        $emailAlreadyUsed = false;
+        $usernameAlreadyUsed = false;
+        if(!$isEmpty && $passwordMatch && $isEmail && $isCorrectPasswordLenght && $isCorrectUsernameLenght){
 
-        $checkUsername = mysqli_query($connection, "SELECT username FROM users WHERE username='$username'");
-        $numOfRows = mysqli_num_rows($checkUsername);
-        if ($numOfRows > 0) {
-            $errors[] = 'username_in_use';
-        }
+            $dbResultQuery = mysqli_query($connection, "SELECT email FROM users WHERE email='$email'");
+            $emailAlreadyUsed = mysqli_num_rows($dbResultQuery) > 0;
 
-            $password = md5($password); 
-            $random = rand(1,5);
-            $profilePicture = "";
-
-            switch ($random) {
-                case 1:
-                    $profilePicture = "./assets/defaults/user_icon.png";
-                    break;
-                case 2:
-                    $profilePicture = "./assets/defaults/user_icon_02.png";
-                    break;
-                case 3:
-                    $profilePicture = "./assets/defaults/user_icon_03.png";
-                    break;
-                case 4:
-                    $profilePicture = "./assets/defaults/user_icon_04.png";
-                    break;
-                
-                default:
-                    $profilePicture = "./assets/defaults/user_icon.png";
-                    break;
+            if($emailAlreadyUsed){
+                $errors[] = new FormError("email_in_use", "Email address already being used.");
             }
 
-        $query = mysqli_query($connection, "INSERT INTO users (username,firstname, surname, email, password, register_date, profile_picture, posts, likes, profile_closed, friends) 
-        VALUES ('$username','$firstName', '$surname', '$email', '$password', '$date', '$profilePicture', '0', '0', 'no', ',')");
-        
-        $_SESSION['reg_name'] = "";
-        $_SESSION['reg_surname'] = "";
-        $_SESSION['reg_username'] = "";
-        $_SESSION['reg_password'] = "";
-        $_SESSION['reg_password_repeat'] = "";    
+            $dbResultQuery = mysqli_query($connection, "SELECT username FROM users WHERE username='$username'");
+            $usernameAlreadyUsed =  mysqli_num_rows($dbResultQuery) > 0;
 
-        session_destroy();
-        header("Location: login.php");
+            if($usernameAlreadyUsed){
+                $errors[] = new FormError("username_is_used", "Username already being used.");
+            }
 
+        }
+
+        if(!$isEmpty && $passwordMatch && $isEmail && $isCorrectPasswordLenght && $isCorrectUsernameLenght && !$emailAlreadyUsed && !$usernameAlreadyUsed){
+
+            $hashedPassword = md5($password);
+            $profilePicture = getRandomProfilePicture();
+
+            mysqli_query($connection, "INSERT INTO users (username,email,password,profile_picture,num_likes,num_posts,friends,register_date,closed,firstname,surname) 
+            VALUES ('$username', '$email', '$hashedPassword', '$profilePicture','0','0',',', '$registerDate', '0','$firstName', '$surname')");
+
+            header("Location: login.php");
+        }
     }
 
+    function getRandomProfilePicture(): string{
+        $random = rand(1,5);
+        $profilePicture = "";
 
+        switch ($random) {
+            case 1:
+                $profilePicture = "./assets/defaults/user_icon.png";
+                break;
+            case 2:
+                $profilePicture = "./assets/defaults/user_icon_02.png";
+                break;
+            case 3:
+                $profilePicture = "./assets/defaults/user_icon_03.png";
+                break;
+            case 4:
+                $profilePicture = "./assets/defaults/user_icon_04.png";
+                break;
+            
+            default:
+                $profilePicture = "./assets/defaults/user_icon.png";
+                break;
+        }
+
+        return $profilePicture;
+    }
 ?>
 
 <?php include("./components/header.php") ?>
 
 <body>
-
-    <div class="wrapper">
-            
-        <div class="box">
-            <div class="box_header">
-                <h3>Social app</h3>
-            </div>
-            <form action="register.php" method="POST">
-                <input type="text" name="reg_name" placeholder="Firstname" value="<?= $_SESSION['reg_name'] ?? '' ?>">
-                <input type="text" name="reg_surname" placeholder="Surname" value="<?= $_SESSION['reg_surname'] ?? '' ?>">
-                <input type="text" name="reg_username" placeholder="Username" value="<?= $_SESSION['reg_username'] ?? '' ?>">
-                <input type="email" name="reg_email" placeholder="email@example.com" value="<?= $_SESSION['reg_email'] ?? '' ?>">
-                <input type="password" name="reg_password" placeholder="Password"><br>
-                <input type="password" name="reg_password_repeat" placeholder="Confirm password"><br><br><br>
-
-                <input type="submit" name="reg_button" value="Sign up">
-
-                <?php if(!empty($errors)): ?>
-                    <div class="form_errors">
-                        <?php
-                            if (in_array('input_fields_empty', $errors)) {
-                                displayError('input_fields_empty', $errorMessages);
-                            }
-                        ?>
-                        <?php
-                            if (in_array('reg_name', $errors)) {
-                                displayError('reg_name', $errorMessages);
-                            }
-                        ?>
-                        <?php
-                            if (in_array('reg_surname', $errors)) {
-                                displayError('reg_surname', $errorMessages);
-                            }
-                        ?>
-                        <?php
-                            if (in_array('reg_username', $errors)) {
-                                displayError('reg_username', $errorMessages);
-                            }
-
-                            if (in_array('reg_username', $errors)) {
-                                displayError('reg_username', $errorMessages);
-                            }
-                        ?>
-                        <?php
-                            if (in_array('reg_email', $errors)) {
-                                displayError('reg_email', $errorMessages);
-                            } elseif (in_array('email_in_use', $errors)) {
-                                displayError('email_in_use', $errorMessages);
-                            }
-                        ?>
-                    </div>
-                <?php endif ?>
-                <div class="box_links">
-                    <a href="/login.php">Sign into your profile</a>
-                    <a href="/">Home page</a>
+    <div class="form_background_box">
+        <div class="form_box">
+            <h2>Social App</h2>
+            <form class="auth_form" action="register.php" method="POST">
+                <div class="form_input_box">
+                    <label>Username:</label>
+                    <input type="text" name="reg_username" placeholder="username">
                 </div>
+                <div class="form_input_box">
+                    <label>Email:</label>
+                    <input type="text" name="reg_email" placeholder="email@email.com">
+                </div>
+                <div class="form_input_box">
+                    <label>Firstname:</label>
+                    <input type="text" name="reg_firstname" placeholder="Your name">
+                </div>
+                <div class="form_input_box">
+                    <label>Surname:</label>
+                    <input type="text" name="reg_surname" placeholder="Your surname">
+                </div>
+
+                <div class="form_input_box">
+                    <label>Password:</label>
+                    <input type="password" name="reg_password" placeholder="password">
+                </div>
+                <div class="form_input_box">
+                    <label>Confirm password:</label>
+                    <input type="password" name="reg_confirm_password" placeholder="password">
+                </div>
+                <button type="submit" name="submit_btn">Create new account</button>
             </form>
+
+            <div class="form_box_links">
+                <a class="form_box_link" href="/login.php">
+                    <i class="fa-solid fa-user"></i>
+                    Sign into your account
+                </a>
+            </div>
+
+            <?php if(!empty($errors)): ?>
+                <div class="form_errors_container">
+                    <ul class="form_errors_list">
+                        <?php
+                            foreach($errors as $error){
+                                echo displayFormError($error->getMessage());
+                            }
+                        ?>
+                    </ul>
+                </div>
+            <?php endif ?>
 
         </div>
     </div>
+
 </body>
 
 </html>
