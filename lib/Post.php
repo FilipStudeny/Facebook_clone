@@ -43,59 +43,106 @@ class Post{
         }
     }
 
-    public function getPosts() {
-        $posts = "";
+    public function getPosts($data, int $postLimit) {
+        $page = (int)$data['page'];
+        $userLoggedIn = $this->user->getUsername();
 
+        if($page == 1){
+            $start = 0;
+        }else{
+            $start = ((int)$page - 1) * $postLimit;
+        }
+
+        $posts = "";
         $query = "SELECT * FROM posts WHERE deleted='0' ORDER BY id DESC";
         $dbQuery = mysqli_query($this->databaseConnection, $query);
 
-        while($postData = mysqli_fetch_array($dbQuery)){
-            $postBody = $postData['body'];
-            $postCreator = $postData['creator'];
-            $postedToUser = $postData['for_who'];
-            $dateOfCreation = $postData['date_creation'];
-            $likes = $postData['likes'];
+        if(mysqli_num_rows($dbQuery) > 0){
 
-            // Prepare user_to so it can be included even when posted not to a user
-            $postedToUserLink = ($postedToUser == "none") ? "" : " to <a href='" . $postedToUser . "'>" . $postedToUser .  "</a>";
+            $numIterations = 0; //Number of iterations check
+            $resultsCount = 1;
 
-            //GET DATA ABOUT POST CREATOR
-            //Check if user who posted, has their account closed - do not show their posts
-            $postCreatorData = new User($this->databaseConnection, $postCreator);
-            if($postCreatorData->isClosed()){
-                continue;
+            while($postData = mysqli_fetch_array($dbQuery)){
+                $postID = $postData['id'];
+                $postBody = $postData['body'];
+                $postCreator = $postData['creator'];
+                $postedToUser = $postData['for_who'];
+                $dateOfCreation = $postData['date_creation'];
+                $likes = $postData['likes'];
+
+                // Prepare user_to so it can be included even when posted not to a user
+                $postedToUserLink = ($postedToUser == "none") ? "" : " to <a href='" . $postedToUser . "'>" . $postedToUser .  "</a>";
+
+                //GET DATA ABOUT POST CREATOR
+                //Check if user who posted, has their account closed - do not show their posts
+                $postCreatorData = new User($this->databaseConnection, $postCreator);
+                if($postCreatorData->isClosed()){
+                    continue;
+                }
+
+                $loggedUser = new User($this->databaseConnection, $userLoggedIn);
+                if($loggedUser->isFriendWith($postCreator)){
+
+                    if($numIterations++ < $start)
+                        continue;
+                    
+
+                    // Once 10 post were loaded break;
+                    if($resultsCount > $postLimit){
+                        break;
+                    }else{
+                        $resultsCount++;
+                    }
+
+                    $postCreatorProfilePicture = $postCreatorData->getProfilePicture();
+                    $timeMessage = $this->getTimeMessage($dateOfCreation);
+
+                    $postHTML = 
+                    <<<HTML
+                        <article class='post'>
+                            <header class='post_header'>
+                                <div class='post_profile_pic_container'>
+                                    <img class='post_profile_picture' src='$postCreatorProfilePicture' width='50' height='50'>
+                                </div>
+                                <div class='post_header_user_info'>
+                                    <nav class='post_header_user_links'>
+                                        <a href='$postCreator'>$postCreator</a>
+                                        
+                                        <a href='$postedToUserLink'><span>to</span> asdad</a>
+                                    </nav>
+                                    <p class='post_time_of_creation'>$timeMessage</p>
+                                </div>
+                            </header>
+                            <div class='post_body'>
+                                <a class='post_body' href='post.php?id=$postID'>
+                                    $postBody
+
+                                </a>
+                            </div>
+                        </article>
+                    HTML;
+
+                    $posts .= $postHTML;
+                }
             }
 
-            $postCreatorProfilePicture = $postCreatorData->getProfilePicture();
-            $timeMessage = $this->getTimeMessage($dateOfCreation);
-
-            $postHTML = 
-            <<<HTML
-                <article class='post'>
-                    <header class='post_header'>
-                        <div class='post_profile_pic_container'>
-                            <img class='post_profile_picture' src='$postCreatorProfilePicture' width='50' height='50'>
-                        </div>
-                        <div class='post_header_user_info'>
-                            <nav class='post_header_user_links'>
-                                <a href='$postCreator'>$postCreator</a>
-                                
-                                <a href='$postedToUserLink'><span>to</span> asdad</a>
-                            </nav>
-                            <p class='post_time_of_creation'>$timeMessage</p>
-                        </div>
-                    </header>
-                    <div class='post_body'>
-                        $postBody
-                    </div>
-                </article>
-            HTML;
-
-            $posts .= $postHTML;
+            if($resultsCount > $postLimit){
+                $value = ((int)$page + 1);
+                $posts .= 
+                <<<HTML
+                    <input type='hidden' class='nextPage' value="$value">
+                    <input type='hidden' class='noMorePosts' value='false'>
+                HTML;
+            }else{
+                $posts .=
+                <<<HTML
+                    <input type='hidden' class='noMorePosts' value="true">
+                    <p class='noMorePosts_text'> No more posts to show! </p>
+                HTML;
+            }
         }
-
+        
         echo $posts;
-     
     }
 
     private function getTimeMessage(string $timeOfCreation)

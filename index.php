@@ -17,43 +17,7 @@
 
     <body>
         <?php include("./components/navbar.php") ?>
-
-            <section class="user_details">
-                <div class="user_profile_picture_container">
-                    <a href="<?php echo $userLoggedIn; ?>">
-                        <img src="<?php echo $user['profile_picture']?>" alt="Profile picture" width="100" height="100" >
-                    </a>
-
-                </div>
-                <h2><?php echo $user['username'] ?></h2>
-                <nav class="user_details_links">
-                    <?php
-                        $user = new User($connection, $userLoggedIn);
-                        echo $user->getFullName();
-                    ?>
-                    <a class="user_detail_link" href="/">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Home | Feed</span>
-                    </a>
-                    <a class="user_detail_link" href="#">
-                        <i class="fa-solid fa-address-card"></i>
-                        <span>Your profile</span>
-                    </a>
-                    <a class="user_detail_link" href="#">
-                        <i class="fa-solid fa-message"></i>
-                        <span>Chat | Messages</span>
-                    </a>
-                    <a class="user_detail_link" href="#">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                    <a class="user_detail_link" href="/loggout.php">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Loggout</span>
-                    </a>
-                </nav>
-            </section>
-
+        <?php include("./components/sidebar.php") ?>
 
         <main>
             <section class="new_post_form_container">
@@ -71,20 +35,72 @@
             </section>
             <section class="posts">
 
-            <?php
-                $post = new Post($connection, $userLoggedIn);
-                $post->getPosts();
-            ?>
-
-                
-
+            
+            
+          
             </section>
             
+            <div id="loading" class="loading_icon">
+                <h2>Loading ...</h2>
+            </div>
+
+            
+
         </main>
 
         
     </body>
-
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity='sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=', crossorigin='anonymous'></script>
     <script src="./assets/scripts/index.js"></script>
+ 
+    <script>
+	var userLoggedIn = '<?php echo $userLoggedIn; ?>';
+
+	$(document).ready(function() {
+		$('#loading').show();
+
+		//Original ajax request for loading first posts 
+		$.ajax({
+			url: "lib/AjaxCalls.php",
+			type: "POST",
+			data: "page=1&userLoggedIn=" + userLoggedIn,
+			cache:false,
+
+			success: function(data) {
+				$('#loading').hide();
+				$('.posts').html(data);
+			}
+		});
+
+		$(window).scroll(function() {
+			var height = $('.posts').height(); //Div containing posts
+			var scroll_top = $(this).scrollTop();
+			var page = $('.posts').find('.nextPage').val();
+			var noMorePosts = $('.posts').find('.noMorePosts').val();
+
+            if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts == 'false'){
+            	$('#loading').show();
+				var ajaxReq = $.ajax({
+					url: "lib/AjaxCalls.php",
+					type: "POST",
+					data: "page=" + page + "&userLoggedIn=" + userLoggedIn,
+					cache:false,
+
+					success: function(response) {
+						$('.posts').find('.nextPage').remove(); //Removes current .nextpage 
+						$('.posts').find('.noMorePosts').remove(); //Removes current .nextpage 
+
+						$('#loading').hide();
+						$('.posts').append(response);
+					}
+				});
+
+			}
+
+			return false;
+
+		}); 
+	});
+	</script>
+
 </html>

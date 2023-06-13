@@ -24,3 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let textArea = document.getElementById("NewPostTextArea");
     textArea.addEventListener('input', changeFormHeight);
 });
+
+
+
+
+

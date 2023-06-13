@@ -60,7 +60,6 @@
 
 <?php include("./components/header.php") ?>
 <body>
-
     <div class="form_background_box">
         <div class="form_box">
             <h2>Social App</h2>

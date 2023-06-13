@@ -18,6 +18,10 @@
             $this->userData = mysqli_fetch_array($result);
         }
 
+        public function getFriends(): array{
+            return $this->userData['friends'];
+        }
+
         public function getUsername(): string{
             return $this->username;
         }
@@ -50,5 +54,13 @@
             return $this->userData['closed'];
         }
 
+        public function isFriendWith(string $username): bool{
+            $nameToCheck = "," . $username . ",";
+            if((strstr($this->userData['friends'], $nameToCheck)) || $nameToCheck == $this->getUsername()){
+                return true;
+            }else{
+                return false;
+            }
+        }
     }
 ?>
