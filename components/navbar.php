@@ -6,9 +6,6 @@
         $userDetails = mysqli_query($connection, "SELECT * FROM users WHERE username='$userLoggedIn'");
         $user = mysqli_fetch_array($userDetails); //get all user data a array
     }
-
-
-
 ?>
 
 <header class="page_header">

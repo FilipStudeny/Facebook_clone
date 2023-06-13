@@ -2,13 +2,10 @@
 <?php
     //<img class="user_profile_picture" src="<?php echo $user['profile_picture']
     include_once("./components/header.php");
-    include_once("./lib/User.php");
-    include_once("./lib/Post.php");
-
 
     if(isset($_POST['submit_new_post'])){
-        $post = new Post($connection, $userLoggedIn);
-        $post->submitPost($_POST['new_post_body'],'none');
+        $post = new PostManager($connection, $userLoggedIn);
+        $post->createNewPost($_POST['new_post_body'],'','none');
         header("Location: index.php"); //Disables post resubmition by refreshing page
     }
 
@@ -35,9 +32,7 @@
             </section>
             <section class="posts">
 
-            
-            
-          
+
             </section>
             
             <div id="loading" class="loading_icon">
@@ -79,12 +74,15 @@
 			var noMorePosts = $('.posts').find('.noMorePosts').val();
 
             if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts == 'false'){
+                alert(userLoggedIn);
             	$('#loading').show();
 				var ajaxReq = $.ajax({
 					url: "lib/AjaxCalls.php",
 					type: "POST",
 					data: "page=" + page + "&userLoggedIn=" + userLoggedIn,
 					cache:false,
+
+                    
 
 					success: function(response) {
 						$('.posts').find('.nextPage').remove(); //Removes current .nextpage 
