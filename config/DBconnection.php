@@ -10,5 +10,5 @@
             echo "ERROR CONNECTING TO DB" . mysqli_connect_errno();
         }
 
-
+?>
 

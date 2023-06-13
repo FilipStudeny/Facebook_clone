@@ -26,7 +26,7 @@ body{
 }
 
 
-header{
+.page_header{
     position: fixed;
     top: 0;
 
@@ -34,65 +34,113 @@ header{
     height: 60px;
     max-height: 60px;
 
-    background-color: #00a8ff;
-    
+    background-color: #2f3640;
+
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
 }
 
-    h1{
-        font-size: 30px;
-        color: white;
 
-        margin-left: 15%;
+.logo_container, .buttons_container{
+    height: 100%;
+    flex: 1;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.header_title{
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+    color: white;
+
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.header_title>i{
+    margin-right: 15px;
+    display: inline-block;
+    color: white;
+}
+
+.searchbar_container{
+    height: 100%;
+    width: 50%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+}
+
+.header_search_bar{
+    width: 50px;
+    height: auto;
+
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+
+    font-size: 20px;
+    background-color: white;
+    color: white;
+    cursor: pointer;
+}
+
+    .header_search_bar:focus{
+        width: 100%;
+        transition: ease-in;
+        transition-duration: 500ms;
+        padding-left: 40px;
+
+        outline: none;
+        cursor: auto;
+        color: var(--textColor);
     }
 
-    header>input{
-        width: 20%;
-        height: 60%;
 
-        margin-right: auto;
-        margin-left: 2%;
-
-        border: none;
-        border-radius: 10px;
-
-        padding: 10px;
-        
+    .search_icon{
         font-size: 20px;
+        position: absolute;
+        margin-left: 15px;
+        pointer-events: none;
     }
 
-    .header_buttons{
-        margin-right: 15%;
 
-        display: flex;
-        flex-direction: row;
-        justify-content: space-evenly;
-        align-items: center;
+.buttons_container{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+    .header_link{
+        width: auto;
+        height: auto;
+
+        background-color: white;
+        border-radius: 10px;
+        font-size: 25px;
+
+        margin: 5px;
+        padding: 5px;
+        cursor: pointer;
+        text-decoration: none;
     }
 
-        .header_link{
+    .header_link:hover{
+        background-color: #dcdde1;
+        color: var(--textColor);
+    }
 
-            margin: 5px 5px;
-            padding: 5px 5px;
 
-            
-            font-size: 20px;
-            font-weight: 500;
-            background-color: white;
-            border-radius: 5px;
 
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .header_link:hover{
-            color: white;
-            background-color: var(--pressedButton);
-        }
 
 
 
@@ -107,27 +155,17 @@ main{
 }
 
 .user_details{
-    background-color: white;
+    background-color: #2f3640;
     width: 15%;
-    height: auto;
 
     position: fixed;
     top: 80px;
-    left: 8%;
+    left: 5%;
 
     box-shadow: 0px 0px 5px var(--textColor);
     padding: 5px 5px 5px 5px;
+    border-radius: 10px;
 }
-
-    .user_details>h2{
-        text-align: center;
-        margin-top: 10px;
-        border-bottom: 1px solid var(--textColor);
-
-        
-        font-size: 20px;
-    }
-
     .user_profile_picture_container{
         margin-top: 10px;
         display: flex;
@@ -137,35 +175,225 @@ main{
     }
 
         .user_profile_picture_container>a{
-            box-shadow: 0px 0px 5px var(--textColor);
             border-radius: 10px;
+            background-color: white;
         }
+
+    .user_details>h2{
+        margin-left: auto;
+        margin-right: auto;
+        width: 80%;
+        text-align: center;
+        margin-top: 10px;
+        border-bottom: 1px solid white;
+
+        color: white;
+        font-size: 25px;
+    }
 
     .user_details_links{
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
         .user_detail_link{
-            width: 80%;
+            width: 90%;
             padding: 5px;
             margin: 5px;
 
-            font-size: 30px;
+            font-size: 20px;
             text-decoration: none;
-            text-align: center;
+            text-align: left;
 
-            
-            border-radius: 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .user_detail_link>i{
+            margin-left: 10px;
+        }
+
+        .user_detail_link>span{
+            width: 80%;
         }
 
         .user_detail_link:hover{
-            color: white;
-            background-color: var(--blue);
+            background-color: #dcdde1;
+            color: var(--textColor);
         }
 
+
+.new_post_form_container{
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+
+    min-height: 50px;
+
+    background-color: #2f3640;
+
+    box-shadow: 0px 0px 5px black;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+    .new_post_form{
+        width: 100%;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        padding: 10px;
+    }
+
+        .new_post_form>textarea{
+            height: auto;
+            width: 100%;
+
+            resize: vertical;
+            min-height: 50px;
+            max-height: 200px;
+
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 18px;
+            outline: none;
+        }
+
+        .new_post_form_buttons{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .new_post_form_btn{
+            margin: 10px;
+            margin-right: 0;
+            padding: 10px;
+            background-color: white;
+
+            border: none;
+            border-radius: 10px;
+
+            font-size: 18px;
+            text-align: center;
+
+            cursor: pointer;
+        }
+
+        .new_post_form_btn:hover, .new_post_form_btn:hover>i{
+            background-color: #2f3640;
+            color: white;
+        }
+
+
+.posts{
+    width: 100%;
+    margin-top: 20px;
+
+}
+
+.post{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+
+
+    width: 100%;
+    background-color: #2f3640;
+}
+
+.post_header{
+    height: auto;
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    padding-left: 10px;
+    padding-right: 10px;
+
+}
+    .post_profile_pic_container{
+        width: 40px;
+        height: 40px;
+
+        background-color: white;
+        border-radius: 10px;
+    }
+
+        .post_profile_picture{
+            width: 100%;
+            height: 100%;
+        }
+
+
+    .post_header_user_info{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .post_time_of_creation{
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .post_header_user_links{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+            .post_header_user_links>a{
+                font-size: 25px;
+                font-weight: 700;
+
+                color: white;
+                text-decoration: none;
+                text-align: end;
+                vertical-align: baseline;
+
+                margin-left: 10px;
+            }
+
+            .post_header_user_links>a>span{
+                color: white;
+                font-size: 20px;
+                font-weight: 400;
+            }
+    
+    .post_body{
+        margin-top: 10px;
+        padding: 10px;
+        border-top: 1px solid white;
+
+        font-size: 18px;
+        color: white;
+    }
 
 .form_background_box{
     background-image: url("../images/background_image.jpg");

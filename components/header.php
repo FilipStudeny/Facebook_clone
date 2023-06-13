@@ -1,16 +1,16 @@
 <?php
-
-    global $connection;
     require_once "./config/DBconnection.php";
 
     if(isset($_SESSION['username'])){
         $userLoggedIn = $_SESSION['username'];
         $userDetails = mysqli_query($connection, "SELECT * FROM users WHERE username='$userLoggedIn'");
-        $user = mysqli_fetch_array($userDetails); //get all user data a array
+        $user = mysqli_fetch_array($userDetails); // get all user data as an array
+    } else if (!strpos($_SERVER['REQUEST_URI'], 'login.php') && !strpos($_SERVER['REQUEST_URI'], 'register.php')) {
+        header("Location: login.php");
+        exit();
     }
-
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

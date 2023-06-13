@@ -11,11 +11,33 @@
 
 ?>
 
-<header>
-    <h1>Social App</h1>
-    <input>
-    <div class="header_buttons">
-        <a class="header_link" href="/login.php">Login</a>
-        <a class="header_link" href="/register.php">Register</a>
+<header class="page_header">
+    <div class="logo_container">
+        <h1 class="header_title"><i class="fa-solid fa-kiwi-bird"></i>Facefook</h1>
     </div>
+    <section class="searchbar_container">
+
+        <i class="fa-solid fa-binoculars search_icon"></i>
+        <input class="header_search_bar" name="header_search_bar">
+
+    </section>
+    <nav class="buttons_container">
+        <a class="header_link" href="<?php echo $user['username']; ?>">
+            <i class="fa-solid fa-address-card"></i>
+        </a>
+        <a class="header_link" href="#">
+            <i class="fa-solid fa-gear"></i>
+        </a>
+
+        <?php if ($userLoggedIn): ?>
+            <a class="header_link" href="/logout.php">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        <?php else: ?>
+            <a class="header_link" href="/login.php">
+                <i class="fa-solid fa-right-to-bracket"></i>
+            </a>
+        <?php endif; ?>
+    </nav>
 </header>
+

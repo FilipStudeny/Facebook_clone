@@ -41,7 +41,7 @@
                 $errors[] = new FormError("password_size_error", "Password size must be betwean 5 and 50.");
             }
 
-            $isCorrectUsernameLenght = validateLength($username, 5, 25);
+            $isCorrectUsernameLenght = validateLength($username, 3, 25);
             if(!$isCorrectUsernameLenght){
                 $errors[] = new FormError("username_size_error", "Username size must be betwean 5 and 25.");
             }
