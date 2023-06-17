@@ -61,23 +61,23 @@
             $postID = $this->getId();
             $postDate = $this->getPostTime($this->getDateOfCreation());
 
-
             $postBodyHTML = $isPostDetail ? $postBody :
                 "<a class='post_detail_link' href='post.php?id=$postID'>
                     $postBody
                 </a>";
 
-
+            $forUser = ($postTo === "none") ? "" : "<a href='$postTo'><span>to</span></a>";
             return <<<HTML
                 <article class='post'>
                     <header class='post_header'>
                         <div class='post_profile_pic_container'>
-                            <img class='post_profile_picture' src='$creatorCreatorProfilePicture' width='50' height='50'>
+                            <img class='post_profile_picture' src='$creatorCreatorProfilePicture' width='50' height='50' alt="User profile picture">
                         </div>
                         <div class='post_header_user_info'>
                             <nav class='post_header_user_links'>
                                 <a href='$creatorCreatorUsername'>$creatorCreatorUsername</a>
-                                <a href='$postTo'><span>to</span></a>
+                                $forUser
+               
                             </nav>
                             <p class='post_time_of_creation'>$postDate</p>
                         </div>

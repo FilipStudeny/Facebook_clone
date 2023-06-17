@@ -9,6 +9,7 @@
     $userLoggedIn = $_REQUEST['userLoggedIn'];
 
 
+
     $posts = new PostManager(DBConnection::connect(), $userLoggedIn);
     $posts->getPostsFromFriends($_REQUEST, $postLimit);
 

@@ -40,6 +40,7 @@
                     surname VARCHAR(255),
                     likes TEXT,
                     posts TEXT,
+                    comments TEXT,
                     friends TEXT,
                     register_date DATE,
                     account_is_closed BOOLEAN
