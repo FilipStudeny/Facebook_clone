@@ -1,11 +1,18 @@
 
 <?php
     //<img class="user_profile_picture" src="<?php echo $user['profile_picture']
-    include_once("./components/header.php");
+    require_once "./components/header.php";
+    require_once "./lib/config/DBconnection.php";
+    require_once "./lib/controllers/PostManager.php";
+    require_once "./lib/classes/FormError.php";
+
+
+    $connection = DBConnection::connect();
+    $userLoggedIn = $_SESSION['username'];
 
     if(isset($_POST['submit_new_post'])){
         $post = new PostManager($connection, $userLoggedIn);
-        $post->createNewPost($_POST['new_post_body'],'','none');
+        $post->createNewPost($_POST['new_post_body'],'none');
         header("Location: index.php"); //Disables post resubmition by refreshing page
     }
 
@@ -13,8 +20,8 @@
 
 
     <body>
-        <?php include("./components/navbar.php") ?>
-        <?php include("./components/sidebar.php") ?>
+        <?php include_once ("./components/navbar.php");?>
+        <?php include("./components/sidebar.php"); ?>
 
         <main>
             <section class="new_post_form_container">
@@ -74,7 +81,6 @@
 			var noMorePosts = $('.posts').find('.noMorePosts').val();
 
             if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts == 'false'){
-                alert(userLoggedIn);
             	$('#loading').show();
 				var ajaxReq = $.ajax({
 					url: "lib/AjaxCalls.php",

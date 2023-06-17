@@ -320,7 +320,11 @@ main{
 .posts{
     width: 100%;
     margin-top: 20px;
+}
 
+.post_detail{
+    width: 100%;
+    margin-top: 10px; 
 }
 
     .post{
@@ -333,7 +337,18 @@ main{
         background-color: #2f3640;
     }
 
-    .post_header{
+    .comment{
+        margin: auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 10px;
+
+        width: 90%;
+        background-color: #2f3640;
+        border-radius: 10px;
+    }
+
+    .post_header, .comment_header{
         height: auto;
         width: 100%;
 
@@ -346,7 +361,7 @@ main{
         padding-right: 10px;
 
     }
-        .post_profile_pic_container{
+        .post_profile_pic_container, .comment_profile_pic_container{
             width: 40px;
             height: 40px;
 
@@ -354,13 +369,13 @@ main{
             border-radius: 10px;
         }
 
-            .post_profile_picture{
+            .post_profile_picture, .comment_profile_picture{
                 width: 100%;
                 height: 100%;
             }
 
 
-        .post_header_user_info{
+        .post_header_user_info, .comment_header_user_info{
             width: 100%;
             display: flex;
             flex-direction: row;
@@ -368,19 +383,19 @@ main{
             justify-content: space-between;
         }
 
-            .post_time_of_creation{
+            .post_time_of_creation, .comment_time_of_creation{
                 color: white;
                 font-size: 18px;
                 font-weight: 700;
             }
 
-            .post_header_user_links{
+            .post_header_user_links, .comment_header_user_links{
                 display: flex;
                 flex-direction: row;
                 align-items: center;
             }
 
-                .post_header_user_links>a{
+                .post_header_user_links>a, .comment_header_user_links>a{
                     font-size: 25px;
                     font-weight: 700;
 
@@ -398,7 +413,7 @@ main{
                     font-weight: 400;
                 }
         
-        .post_body{
+        .post_body, .comment_body{
             margin-top: 10px;
             padding: 10px;
             border-top: 1px solid white;
@@ -406,6 +421,16 @@ main{
             font-size: 18px;
             color: white;
         }
+
+            .post_detail_link{
+                text-decoration: none;
+                font-size: 18px;
+                color: white;
+            }
+
+
+
+    
 
 #loading{
     width: 100%;

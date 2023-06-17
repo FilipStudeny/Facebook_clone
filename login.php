@@ -1,53 +1,36 @@
 <?php
-
-    require_once "./config/DBconnection.php";
     require_once "./lib/helpers.php";
-    require_once "./lib/FormError.php";
+    require_once "./lib/config/DBconnection.php";
+    require_once "./lib/controllers/UserManager.php";
+    require_once "./lib/classes/FormError.php";
 
-    /** @var FormError[] $errors */
+    $connection = DBConnection::connect();
     $errors = array();
+
     if (isset($_POST['submit_btn'])) {
         $isEmpty = empty($_POST['log_email']) || empty($_POST['log_password']);
-        if($isEmpty){
+
+        if ($isEmpty) {
             $errors[] = new FormError("empty_input", "Make sure all inputs are filled.");
-        }
+        } else {
+            $email = sanitizeInput($_POST['log_email'], false);
+            $password = $_POST['log_password'];
 
-        $email = sanitizeInput($_POST['log_email'], false);;
-        $password = $_POST['log_password'];
+            $userManager = new UserManager($connection);
 
-        $isEmail = false;
-        $isCorrectPasswordLenght = false;
-        if(!$isEmpty){
-            $isEmail = filter_var($email, FILTER_VALIDATE_EMAIL);
-            if(!$isEmail){
-                $errors[] = new FormError("invalid_email", "Make sure to enter valid email address.");
-            }
-    
-            $isCorrectPasswordLenght = validateLength($password, 5, 50);
-            if(!$isCorrectPasswordLenght){
-                $errors[] = new FormError("password_size_error", "Password size must be betwean 5 and 50.");
-            }
-        }
-
-        $userExists = false;
-        if(!$isEmpty && $isEmail && $isCorrectPasswordLenght){
-            $hashedPassword = md5($password);
-            $dbResultQuery = mysqli_query($connection, "SELECT * FROM users WHERE email='$email' AND password='$hashedPassword'");
-            $userExists = mysqli_num_rows($dbResultQuery) > 0;
-
-            if(!$userExists){
+            if (!$userManager->userExists($email, $password)) {
                 $errors[] = new FormError("no_user_found", "User account was not found.");
-            }else{
-                $userData = mysqli_fetch_array($dbResultQuery);
-                $username = $userData['username'];
-                
-                $dbQuery = mysqli_query($connection, "SELECT * FROM users WHERE email='$email' AND closed='1'"); 
+            } else {
+                $user = $userManager->getUser($email); // Fetch user data here
+                $username = $user->getUsername();
+
+                $dbQuery = mysqli_query($connection, "SELECT * FROM user WHERE email='$email' AND account_is_closed='1'");
                 $accountIsClosed = mysqli_num_rows($dbQuery) == 1;
-    
-                if($accountIsClosed){
-                    mysqli_query($connection, "UPDATE users SET closed='0' WHERE email='$email'");
+
+                if ($accountIsClosed) {
+                    mysqli_query($connection, "UPDATE user SET closed='0' WHERE email='$email'");
                 }
-    
+
                 session_start();
                 $_SESSION['username'] = $username;
                 header("Location: index.php");

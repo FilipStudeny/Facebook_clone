@@ -1,15 +1,15 @@
 <?php
 
-    include_once("../config/DBconnection.php");
-    include_once("../lib/PostManager.php");
+
+    require_once "config/DBconnection.php";
+    require_once "controllers/PostManager.php";
 
 
-    /** @var int $postLimit */
     $postLimit = 10;
     $userLoggedIn = $_REQUEST['userLoggedIn'];
-    
-    $posts = new PostManager($connection, $userLoggedIn);
+
+
+    $posts = new PostManager(DBConnection::connect(), $userLoggedIn);
     $posts->getPostsFromFriends($_REQUEST, $postLimit);
 
 
-?>

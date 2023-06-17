@@ -1,9 +1,10 @@
 <?php
-    require_once "./config/DBconnection.php";
+
+    require_once "./lib/config/DBconnection.php";
 
     if(isset($_SESSION['username'])){
         $userLoggedIn = $_SESSION['username'];
-        $userDetails = mysqli_query($connection, "SELECT * FROM users WHERE username='$userLoggedIn'");
+        $userDetails = mysqli_query(DBConnection::connect(), "SELECT * FROM user WHERE username='$userLoggedIn'");
         $user = mysqli_fetch_array($userDetails); //get all user data a array
     }
 ?>

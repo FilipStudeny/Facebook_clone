@@ -1,87 +1,74 @@
 <?php
 
-    interface IPost {
-        public function getId(): string;
-        public function getCreator(): string;
-        public function getBody(): string;
-        public function getForWho(): string;
-        public function getDateOfCreation(): string;
-        public function getUserClosed(): string;
-        public function getDeleted(): string;
-        public function getLikes(): string;
-        public function getHTML(bool $isPostDetail): string;
-        public function getPostTime(string $timeOfCreation);
-    }
 
-    class Post implements IPost{
+    class Post {
         private mysqli $databaseConnection;
-        private $postData;
+        private array|null|false $postData;
 
         public function __construct(mysqli $databaseConnection, string $id)
         {
             $this->databaseConnection = $databaseConnection;
 
-            $query = "SELECT * FROM posts WHERE id=?";
+            $query = "SELECT post.*, user.username FROM post JOIN user ON post.creator_id = user.ID WHERE post.ID = ?; ";
             $statement = mysqli_prepare($this->databaseConnection, $query);
             mysqli_stmt_bind_param($statement, "s", $id);
             mysqli_stmt_execute($statement);
             $result = mysqli_stmt_get_result($statement);
             $this->postData = mysqli_fetch_array($result);
+
         }
 
-        public function getId(): string
-        {
-            return $this->postData['id'];
+        public function getID(): int {
+            return $this->postData['ID'];
         }
 
-        public function getBody(): string
-        {        
-            return $this->postData['body'];
+        public function getPost(): string{
+            return $this->postData['postBody'];
         }
 
-        public function getCreator(): string
-        {
-            return $this->postData['creator'];
+        public function getDateOfCreation(): string{
+            return $this->postData['date_of_creation'];
         }
 
-        function getUserClosed(): string
-        {
-            return $this->postData['user_closed'];
+        public function getCreatorUsername(): string{
+            return $this->postData['username'];
         }
 
-        function getForWho(): string
-        {
-            return $this->postData['for_who'];
+        public function getCreatedForWho(): string{
+            return $this->postData['created_for_who'];
         }
 
-        function getDateOfCreation(): string
-        {
-            return $this->postData['date_creation'];
-        }
-
-        public function getLikes(): string
-        {
+        public function getLikes(): string{
             return $this->postData['likes'];
         }
 
-        function getDeleted(): string
-        {
-            return $this->postData['deleted'];
+        public function getComments(): string{
+            return $this->postData['comments'];
         }
 
+
+        public function render(bool $isPostDetail): void
+        {
+            echo $this->getHTML($isPostDetail);
+        }
         function getHTML(bool $isPostDetail): string
         {
-            $creator = new User($this->databaseConnection, $this->getCreator());
+            $creator = new User($this->databaseConnection, $this->getCreatorUsername());
             $creatorCreatorProfilePicture = $creator->getProfilePicture();
             $creatorCreatorUsername = $creator->getUsername();
-            $postTo = $this->getForWho();
-            $postBody = $this->getBody();
+            $postTo = $this->getCreatedForWho();
+            $postBody = $this->getPost();
             $postID = $this->getId();
             $postDate = $this->getPostTime($this->getDateOfCreation());
 
 
-            $html = 
-            <<<HTML
+            $postBodyHTML = $isPostDetail ? $postBody :
+                "<a class='post_detail_link' href='post.php?id=$postID'>
+                    $postBody
+                </a>";
+
+
+            return <<<HTML
                 <article class='post'>
                     <header class='post_header'>
                         <div class='post_profile_pic_container'>
@@ -90,20 +77,16 @@
                         <div class='post_header_user_info'>
                             <nav class='post_header_user_links'>
                                 <a href='$creatorCreatorUsername'>$creatorCreatorUsername</a>
-                                <a href='$postTo'><span>to</span> asdad</a>
+                                <a href='$postTo'><span>to</span></a>
                             </nav>
                             <p class='post_time_of_creation'>$postDate</p>
                         </div>
                     </header>
                     <div class='post_body'>
-                        <a class='post_body' href='post.php?id=$postID'>
-                            $postBody
-                        </a>
+                        $postBodyHTML
                     </div>
                 </article>
             HTML;
-
-            return $html;
         }
 
         public function getPostTime(string $timeOfCreation): string

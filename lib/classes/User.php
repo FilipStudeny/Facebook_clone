@@ -1,29 +1,32 @@
 <?php
 
+
     class User{
-        private string $username;
         private mysqli $databaseConnection;
         private array $userData;
 
-        public function __construct(mysqli $databaseConnection, string $username)
+        public function __construct(mysqli $databaseConnection, string $identifier)
         {
-            $this->username = $username;
             $this->databaseConnection = $databaseConnection;
 
-            $query = "SELECT * FROM users WHERE username=?";
+            $query = "SELECT * FROM user WHERE email=? OR username=? OR id=?";
             $statement = mysqli_prepare($this->databaseConnection, $query);
-            mysqli_stmt_bind_param($statement, "s", $username);
+            mysqli_stmt_bind_param($statement, "sss", $identifier, $identifier, $identifier);
             mysqli_stmt_execute($statement);
             $result = mysqli_stmt_get_result($statement);
             $this->userData = mysqli_fetch_array($result);
         }
 
-        public function getFriends(): array{
-            return $this->userData['friends'];
+        public function getID(): int{
+            return $this->userData['ID'];
+        }
+        public function getFriends(): array {
+            $friends = $this->userData['friends'];
+            return !empty($friends) ? explode(',', $friends) : [];
         }
 
         public function getUsername(): string{
-            return $this->username;
+            return $this->userData['username'];
         }
 
         public function getEmail(): string{
@@ -42,25 +45,20 @@
             return $this->getFirstname() . " " . $this->getSurname();
         }
 
-        public function getNumberOfPosts(): int{
-            return $this->userData['num_posts'];
+        public function getNumberOfPosts(): int {
+            return count(explode(',', $this->userData['posts']));
         }
 
         public function getProfilePicture(): string {
             return $this->userData['profile_picture'];
         }
 
-        public function isClosed(): bool{
-            return $this->userData['closed'];
+        public function isClosed(): bool {
+            return $this->userData['account_is_closed'];
         }
 
-        public function isFriendWith(string $username): bool{
-            $nameToCheck = "," . $username . ",";
-            if((strstr($this->userData['friends'], $nameToCheck)) || $nameToCheck == $this->getUsername()){
-                return true;
-            }else{
-                return false;
-            }
+        public function isFriendWith(string $username): bool {
+            $friends = $this->getFriends();
+            return in_array($username, $friends) || $username === $this->getUsername();
         }
     }
-?>
