@@ -5,7 +5,7 @@
         public function createNew(array $data);
 
         public function delete(string $id);
-        public function updateData(string $data);
+        public function update(string $data);
     }
 
 

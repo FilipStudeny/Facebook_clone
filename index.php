@@ -10,6 +10,11 @@
     $connection = DBConnection::connect();
     $userLoggedIn = $_SESSION['username'];
 
+    if (!isset($userLoggedIn)) {
+        header("Location: login.php");
+        exit();
+    }
+
     if(isset($_POST['submit_new_post'])){
         $post = new PostManager($connection, $userLoggedIn);
         $post->createNewPost($_POST['new_post_body'],'none');
@@ -24,21 +29,19 @@
         <?php include("./components/sidebar.php"); ?>
 
         <main>
-            <section class="new_post_form_container">
-                <form class="new_post_form" action="index.php" method="POST">
+            <section class="form_container">
+                <form class="form" action="index.php" method="POST">
                     <textarea id="NewPostTextArea" name="new_post_body" placeholder="Say something..."></textarea>
-                    <div class="new_post_form_buttons">
-                        <button class="new_post_form_btn" type="submit" name="submit_new_post">
+                    <div class="form_buttons">
+                        <button class="form_btn" type="submit" name="submit_new_post">
                             <i class="fa-solid fa-pen"></i>
                             Create new post
                         </button>
                     </div>
-                    
                 </form>
-
             </section>
-            <section class="posts">
 
+            <section class="posts">
 
             </section>
             
@@ -46,15 +49,14 @@
                 <h2>Loading ...</h2>
             </div>
 
-            
-
         </main>
 
         
     </body>
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity='sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=', crossorigin='anonymous'></script>
     <script src="./assets/scripts/index.js"></script>
- 
+    <script src="./assets/scripts/post.js"></script>
+
     <script>
 	var userLoggedIn = '<?php echo $userLoggedIn; ?>';
 
@@ -71,6 +73,27 @@
 			success: function(data) {
 				$('#loading').hide();
 				$('.posts').html(data);
+
+                $(".post_likes_count").click(function() {
+                    const postId = $(this).data("post-id");
+
+                    const likeCountElement = $(this).find("span");
+                    const likeCount = parseInt(likeCountElement.text());
+
+                    if ($(this).hasClass("liked")) {
+                        // Decrease the likeCount by 1
+                        const updatedCount = likeCount - 1;
+                        likeCountElement.text(updatedCount);
+                        $(this).removeClass("liked");
+                    } else {
+                        // Increase the likeCount by 1
+                        const updatedCount = likeCount + 1;
+                        likeCountElement.text(updatedCount);
+                        $(this).addClass("liked");
+                    }
+
+                    likePost(postId, userLoggedIn);
+                });
 			}
 		});
 
@@ -80,7 +103,7 @@
 			var page = $('.posts').find('.nextPage').val();
 			var noMorePosts = $('.posts').find('.noMorePosts').val();
 
-            if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts == 'false'){
+            if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts === 'false'){
             	$('#loading').show();
 				var ajaxReq = $.ajax({
 					url: "lib/AjaxCalls.php",
@@ -88,23 +111,24 @@
 					data: "page=" + page + "&userLoggedIn=" + userLoggedIn,
 					cache:false,
 
-                    
-
 					success: function(response) {
 						$('.posts').find('.nextPage').remove(); //Removes current .nextpage 
 						$('.posts').find('.noMorePosts').remove(); //Removes current .nextpage 
 
 						$('#loading').hide();
 						$('.posts').append(response);
+
+
 					}
 				});
 
 			}
 
 			return false;
-
 		}); 
 	});
+
+
 	</script>
 
 </html>

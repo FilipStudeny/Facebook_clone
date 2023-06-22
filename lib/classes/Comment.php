@@ -1,6 +1,10 @@
 <?php
 
 
+    require_once __DIR__ . '/../utils/Time.php';
+
+    use App\lib\utils\Time;
+
     class Comment{
         private array $commentData;
         private mysqli $databaseConnection;
@@ -48,14 +52,14 @@
             echo $this->getHTML();
         }
 
-        public function getHTML(){
+        public function getHTML(): string
+        {
             $creator = $this->getCreatorUsername();
             $creatorProfilePicture = $this->getCreatorProfilePicture();
             $body = $this->getBody();
-            $dateOfCreation = $this->getDateOfCreation();
+            $dateOfCreation = Time::getTimeSinceCreation($this->getDateOfCreation());
 
-            $html = 
-            <<<HTML
+            return <<<HTML
                 <article class='comment'>
                     <header class='comment_header'>
                         <div class='comment_profile_pic_container'>
@@ -73,8 +77,6 @@
                     </div>
                 </article>
             HTML;
-
-            return $html;
         }
 
         public function getCommentTime(string $timeOfCreation): string

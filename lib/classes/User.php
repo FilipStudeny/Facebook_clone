@@ -41,6 +41,10 @@
             return $this->userData['surname'];
         }
 
+        public function getLikes(): string{
+            return $this->userData['likes'];
+        }
+
         public function getFullName(): string{
             return $this->getFirstname() . " " . $this->getSurname();
         }

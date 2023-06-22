@@ -1,11 +1,11 @@
-<section class="user_details">
+<aside class="user_profile_sidebar">
     <div class="user_profile_picture_container">
         <a href="<?php echo $userLoggedIn; ?>">
             <img src="<?php echo $user['profile_picture']?>" alt="Profile picture" width="100" height="100" >
         </a>
 
     </div>
-    <h2><?php echo $user['username'] ?></h2>
+    <h2 class="user_username_sidebar"><?php echo $user['username'] ?></h2>
     <nav class="user_details_links">
         <a class="user_detail_link" href="/">
             <i class="fa-solid fa-house"></i>
@@ -28,4 +28,4 @@
             <span>Loggout</span>
         </a>
     </nav>
-</section>
+</aside>

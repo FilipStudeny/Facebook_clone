@@ -1,5 +1,8 @@
 <?php
 
+    require_once __DIR__ . '/../utils/Time.php';
+
+    use App\lib\utils\Time;
 
     class Post {
         private mysqli $databaseConnection;
@@ -9,7 +12,16 @@
         {
             $this->databaseConnection = $databaseConnection;
 
-            $query = "SELECT post.*, user.username FROM post JOIN user ON post.creator_id = user.ID WHERE post.ID = ?; ";
+           // $query = "SELECT post.*, user.username FROM post JOIN user ON post.creator_id = user.ID WHERE post.ID = ?; ";
+            $query = "
+            SELECT post.*, user.username, COUNT(comment.ID) AS comment_count, 
+                   (LENGTH(post.likes) - LENGTH(REPLACE(post.likes, ',', ''))) AS likes_count
+            FROM post
+            JOIN user ON post.creator_id = user.ID
+            LEFT JOIN comment ON post.ID = comment.post_id
+            WHERE post.ID = ?
+            GROUP BY post.ID, user.username;";
+
             $statement = mysqli_prepare($this->databaseConnection, $query);
             mysqli_stmt_bind_param($statement, "s", $id);
             mysqli_stmt_execute($statement);
@@ -18,15 +30,15 @@
 
         }
 
-        public function getID(): int {
+        private function getID(): int {
             return $this->postData['ID'];
         }
 
-        public function getPost(): string{
+        private function getPost(): string{
             return $this->postData['postBody'];
         }
 
-        public function getDateOfCreation(): string{
+        private function getDateOfCreation(): string{
             return $this->postData['date_of_creation'];
         }
 
@@ -34,16 +46,24 @@
             return $this->postData['username'];
         }
 
-        public function getCreatedForWho(): string{
+        private function getCreatedForWho(): string{
             return $this->postData['created_for_who'];
+        }
+
+        private function getComments(): string{
+            return $this->postData['comments'];
+        }
+
+        private function getCommentsCount(): int{
+            return $this->postData['comment_count'];
         }
 
         public function getLikes(): string{
             return $this->postData['likes'];
         }
 
-        public function getComments(): string{
-            return $this->postData['comments'];
+        private function getLikesCount(): int{
+            return $this->postData['likes_count'];
         }
 
 
@@ -51,15 +71,21 @@
         {
             echo $this->getHTML($isPostDetail);
         }
+
         function getHTML(bool $isPostDetail): string
         {
             $creator = new User($this->databaseConnection, $this->getCreatorUsername());
+
             $creatorCreatorProfilePicture = $creator->getProfilePicture();
             $creatorCreatorUsername = $creator->getUsername();
             $postTo = $this->getCreatedForWho();
             $postBody = $this->getPost();
             $postID = $this->getId();
-            $postDate = $this->getPostTime($this->getDateOfCreation());
+            $postDate = Time::getTimeSinceCreation($this->getDateOfCreation());
+
+
+            $commentsCount = $this->getCommentsCount();
+            $likeCount = $this->getLikesCount();
 
             $postBodyHTML = $isPostDetail ? $postBody :
                 "<a class='post_detail_link' href='post.php?id=$postID'>
@@ -67,6 +93,8 @@
                 </a>";
 
             $forUser = ($postTo === "none") ? "" : "<a href='$postTo'><span>to</span></a>";
+
+            $liked = str_contains($creator->getLikes(), $postID) ? 'liked' : '';
             return <<<HTML
                 <article class='post'>
                     <header class='post_header'>
@@ -85,35 +113,20 @@
                     <div class='post_body'>
                         $postBodyHTML
                     </div>
+                    <footer class="post_footer">
+                        <div class="post_footer_data">
+                            
+                             <button class="post_comments_count">
+                                <i class="fa-solid fa-comment post_comments"></i>
+                                <span>$commentsCount</span>
+                            </button>
+                            <button class="post_likes_count $liked" data-post-id="$postID">
+                                <i class="fa-solid fa-thumbs-up"></i>
+                                <span>$likeCount</span>
+                            </button>
+                        </div>
+                    </footer>
                 </article>
             HTML;
         }
-
-        public function getPostTime(string $timeOfCreation): string
-        {
-            // Time frame
-            $dateNow = date("Y-m-d H:i:s");
-            $startDate = new DateTime($timeOfCreation); // Time of post
-            $endDate = new DateTime($dateNow); // Current time
-            $interval = $startDate->diff($endDate); // Difference
-    
-            if ($interval->y >= 1) {
-                $timeMessage = $interval->y . ($interval->y == 1 ? " year ago." : " years ago.");
-            } else if ($interval->m >= 1) {
-                $days = $interval->d == 0 ? " ago." : ($interval->d == 1 ? " day ago." : " days ago.");
-                $timeMessage = $interval->m . ($interval->m == 1 ? " month" : " months") . $days;
-            } else if ($interval->d >= 1) {
-                $timeMessage = $interval->d == 1 ? "Yesterday." : $interval->d . " days ago.";
-            } else if ($interval->h >= 1) {
-                $timeMessage = $interval->h . ($interval->d == 1 ? " hour ago." : " hours ago.");
-            } else if ($interval->i >= 1) {
-                $timeMessage = $interval->i . ($interval->i == 1 ? " minute ago." : " minutes ago.");
-            } else {
-                $timeMessage = $interval->s <= 30 ? "Just now." : $interval->s . " seconds ago.";
-            }
-    
-            return $timeMessage;
-        }
-
     }
-?>

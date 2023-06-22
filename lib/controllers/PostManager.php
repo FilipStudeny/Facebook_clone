@@ -42,8 +42,45 @@
                 $dbUserQuery = mysqli_query($this->databaseConnection, $userQuery);
             }
             //Insert notification for post posted on user profile
-
         }
+
+        public function like(string $postID, string $username): void
+        {
+            // Check if the user has already liked the post
+            $post = new Post($this->databaseConnection, $postID);
+            $user = new User($this->databaseConnection, $username);
+            $userID = $user->getID();
+
+            $likes = explode(",", $post->getLikes());
+            if (in_array($userID, $likes)) {
+                // Remove the user ID from the likes column in the post table
+                $updatedLikes = implode(",", array_diff($likes, [$userID]));
+                $updateQuery = "UPDATE post SET likes = ? WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $updatedLikes, $postID);
+                mysqli_stmt_execute($updateStatement);
+
+                // Remove the post ID from the likes column in the user table
+                $userLikes = explode(",", $user->getLikes());
+                $updatedUserLikes = implode(",", array_diff($userLikes, [$postID]));
+                $updateQuery = "UPDATE user SET likes = ? WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $updatedUserLikes, $userID);
+            } else {
+                // Add the user ID to the likes column in the post table
+                $updateQuery = "UPDATE post SET likes = CONCAT(likes, ?, ',') WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $userID, $postID);
+                mysqli_stmt_execute($updateStatement);
+
+                // Add the post ID to the likes column in the user table
+                $updateQuery = "UPDATE user SET likes = CONCAT(likes, ?, ',') WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $postID, $userID);
+            }
+            mysqli_stmt_execute($updateStatement);
+        }
+
 
         public function getPostsFromFriends($data, int $postLimit): void
         {
@@ -65,7 +102,6 @@
             if(mysqli_num_rows($dbQuery) > 0){
                 while($postData = mysqli_fetch_array($dbQuery)){
                     $postID = $postData['ID'];
-                    print_r($postData);
 
                     $post = new Post($this->databaseConnection, $postID);
                     $postCreator = new User($this->databaseConnection, $post->getCreatorUsername());

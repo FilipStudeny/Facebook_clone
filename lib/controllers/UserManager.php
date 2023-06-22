@@ -3,7 +3,7 @@
     require_once "./lib/classes/User.php";
     require_once "./lib/interfaces/IManager.php";
 
-    class UserManager implements IManager{
+    class UserManager{
 
         private mysqli $databaseConnection;
         public function __construct(mysqli $databaseConnection){

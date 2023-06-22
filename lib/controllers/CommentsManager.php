@@ -17,9 +17,9 @@
         }
 
 
-        public function createNewComment(string $commentData, string $postID): void
+        public function create(string $data, string $postID): void
         {
-            $body = strip_tags($commentData);
+            $body = strip_tags($data);
             $body = mysqli_real_escape_string($this->databaseConnection, $body);
 
             //Allow for line breaks
@@ -43,8 +43,13 @@
             $returnedCommentID = mysqli_insert_id($this->databaseConnection);
 
             if ($returnedCommentID) {
-                $userQuery = "UPDATE User SET comments = CONCAT(comments, '$returnedCommentID,') WHERE ID = $creatorID";
+                $userQuery = "UPDATE user SET comments = CONCAT(comments, '$returnedCommentID,') WHERE ID = $creatorID";
                 $dbUserQuery = mysqli_query($this->databaseConnection, $userQuery);
+
+                // Update the comment count in the post table
+                $updatePostQuery = "UPDATE post SET comments = CONCAT(comments, '$returnedCommentID,') WHERE ID = $postID";
+                $dbUpdatePostQuery = mysqli_query($this->databaseConnection, $updatePostQuery);
+
             }
         }
 
