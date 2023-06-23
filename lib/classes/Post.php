@@ -120,7 +120,7 @@
                                 <i class="fa-solid fa-comment post_comments"></i>
                                 <span>$commentsCount</span>
                             </button>
-                            <button class="post_likes_count $liked" data-post-id="$postID">
+                            <button class="likes_count $liked" data-likable-name="post" data-likable-id="$postID">
                                 <i class="fa-solid fa-thumbs-up"></i>
                                 <span>$likeCount</span>
                             </button>

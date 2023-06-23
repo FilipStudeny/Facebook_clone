@@ -425,7 +425,7 @@ main{
                 color: white;
             }
 
-        .post_footer{
+        .post_footer, .comment_footer{
             width: 100%;
             display: flex;
             flex-direction: row;
@@ -435,12 +435,12 @@ main{
             border-top: 1px solid white;
         }
 
-            .post_footer_data{
+            .post_footer_data, .comment_footer_data{
                 padding-top: 5px;
                 width: auto;
             }
 
-               .post_comments_count, .post_likes_count{
+               .post_comments_count, .likes_count{
                    color: white;
                    font-size: 20px;
                    font-weight: 700;
@@ -457,13 +457,13 @@ main{
                    background-color: var(--textColor);
                }
 
-                .post_comments_count>i,.post_comments_count>span, .post_likes_count>i, .post_likes_count>span{
+                .post_comments_count>i,.post_comments_count>span, .likes_count>i, .likes_count>span{
                     color: white;
                     font-size: 20px;
                     font-weight: 700;
                 }
 
-                .post_comments_count:hover, .post_likes_count:hover{
+                .post_comments_count:hover, .likes_count:hover {
                     background-color: white;
                     color: var(--textColor);
                 }
@@ -472,7 +472,7 @@ main{
                     color: #ee5253;
                 }
 
-                .post_comments_count:hover>i, .post_comments_count:hover>span, .post_likes_count:hover>i, .post_likes_count:hover>span{
+                .post_comments_count:hover>i, .post_comments_count:hover>span, .likes_count:hover>i, .likes_count:hover>span{
                     color: var(--textColor);
                 }
 

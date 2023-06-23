@@ -10,6 +10,6 @@
 
 
     $comments = new CommentsManager(DBConnection::connect(), $userLoggedIn);
-    $comments->lik($_REQUEST, $postID, $commentLimit);
+    $comments->getComments($_REQUEST, $postID, $commentLimit);
 
 

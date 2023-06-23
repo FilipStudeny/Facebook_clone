@@ -13,7 +13,7 @@
         {
             $this->databaseConnection = $databaseConnection;
 
-            $query = "SELECT comment.*, user.username, user.profile_picture FROM comment JOIN user ON comment.creator_id = user.ID WHERE comment.ID = ?; ";
+            $query = "SELECT comment.*, (LENGTH(comment.likes) - LENGTH(REPLACE(comment.likes, ',', ''))) AS like_count, user.ID AS creator_id FROM comment JOIN user ON comment.creator_id = user.ID WHERE comment.ID = ?";
             $statement = mysqli_prepare($this->databaseConnection, $query);
             mysqli_stmt_bind_param($statement, "s", $commentID);
             mysqli_stmt_execute($statement);
@@ -29,35 +29,45 @@
             return $this->commentData['comment'];
         }
 
-        public function getPostID(): int {
+        private function getPostID(): string{
             return $this->commentData['post_id'];
         }
 
-        public function getLikes(): string{
-            return $this->commentData['likes'];
-        }
-
-        public function getDateOfCreation(): string{
+        private function getDateOfCreation(): string{
             return $this->commentData['date_of_creation'];
         }
 
-        public function getCreatorUsername(): string{
-            return $this->commentData['username'];
+        public function getLikes(): string {
+            return $this->commentData['likes'];
         }
 
-        public function getCreatorProfilePicture(): string{
-            return $this->commentData['profile_picture'];
+
+        private function getLikeCount(): int{
+            return $this->commentData['like_count'];
         }
+
+        private function getCreatorID(): string{
+            return $this->commentData['creator_id'];
+        }
+
+
         public function render(array $data): void{
             echo $this->getHTML();
         }
 
         public function getHTML(): string
         {
-            $creator = $this->getCreatorUsername();
-            $creatorProfilePicture = $this->getCreatorProfilePicture();
+            $creator = new User($this->databaseConnection, $this->getCreatorID());
+            $creatorUsername = $creator->getUsername();
+            $creatorProfilePicture = $creator->getProfilePicture();
+            $creatorLikes = $creator->getLikes();
+
             $body = $this->getBody();
             $dateOfCreation = Time::getTimeSinceCreation($this->getDateOfCreation());
+            $likeCount = $this->getLikeCount();
+            $commentID = $this->getID();
+
+            $liked = str_contains($creatorLikes, $this->commentData['ID']) ? 'liked' : '';
 
             return <<<HTML
                 <article class='comment'>
@@ -67,7 +77,7 @@
                         </div>
                         <div class='comment_header_user_info'>
                             <nav class='comment_header_user_links'>
-                                <a href='$creator'>$creator</a>
+                                <a href='$creatorUsername'>$creatorUsername</a>
                             </nav>
                             <p class='comment_time_of_creation'>$dateOfCreation</p>
                         </div>
@@ -75,36 +85,16 @@
                     <div class='comment_body'>
                         $body
                     </div>
+                    <footer class="comment_footer">
+                        <div class="comment_footer_data">
+                            <button class="likes_count $liked" data-likable-name="comment" data-likable-id="$commentID">
+                                <i class="fa-solid fa-thumbs-up"></i>
+                                <span>$likeCount</span>
+                            </button>
+                        </div>
+                    </footer>
                 </article>
             HTML;
         }
-
-        public function getCommentTime(string $timeOfCreation): string
-        {
-            // Time frame
-            $dateNow = date("Y-m-d H:i:s");
-            $startDate = new DateTime($timeOfCreation); // Time of post
-            $endDate = new DateTime($dateNow); // Current time
-            $interval = $startDate->diff($endDate); // Difference
-
-            if ($interval->y >= 1) {
-                $timeMessage = $interval->y . ($interval->y == 1 ? " year ago." : " years ago.");
-            } else if ($interval->m >= 1) {
-                $days = $interval->d == 0 ? " ago." : ($interval->d == 1 ? " day ago." : " days ago.");
-                $timeMessage = $interval->m . ($interval->m == 1 ? " month" : " months") . $days;
-            } else if ($interval->d >= 1) {
-                $timeMessage = $interval->d == 1 ? "Yesterday." : $interval->d . " days ago.";
-            } else if ($interval->h >= 1) {
-                $timeMessage = $interval->h . ($interval->d == 1 ? " hour ago." : " hours ago.");
-            } else if ($interval->i >= 1) {
-                $timeMessage = $interval->i . ($interval->i == 1 ? " minute ago." : " minutes ago.");
-            } else {
-                $timeMessage = $interval->s <= 30 ? "Just now." : $interval->s . " seconds ago.";
-            }
-
-            return $timeMessage;
-        }
-
     }
 
-?>

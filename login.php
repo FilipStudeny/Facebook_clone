@@ -18,23 +18,31 @@
 
             $userManager = new UserManager($connection);
 
+            $isEmail = filter_var($email, FILTER_VALIDATE_EMAIL);
+            if (!$isEmail) {
+                $errors[] = new FormError("invalid_email", "Make sure to enter a valid email address.");
+            }
+
             if (!$userManager->userExists($email, $password)) {
                 $errors[] = new FormError("no_user_found", "User account was not found.");
             } else {
-                $user = $userManager->getUser($email); // Fetch user data here
-                $username = $user->getUsername();
+                if($isEmail){
+                    $user = $userManager->getUser($email); // Fetch user data here
+                    $username = $user->getUsername();
 
-                $dbQuery = mysqli_query($connection, "SELECT * FROM user WHERE email='$email' AND account_is_closed='1'");
-                $accountIsClosed = mysqli_num_rows($dbQuery) == 1;
+                    $dbQuery = mysqli_query($connection, "SELECT * FROM user WHERE email='$email' AND account_is_closed='1'");
+                    $accountIsClosed = mysqli_num_rows($dbQuery) == 1;
 
-                if ($accountIsClosed) {
-                    mysqli_query($connection, "UPDATE user SET closed='0' WHERE email='$email'");
+                    if ($accountIsClosed) {
+                        mysqli_query($connection, "UPDATE user SET closed='0' WHERE email='$email'");
+                    }
+
+                    session_start();
+                    $_SESSION['username'] = $username;
+                    header("Location: index.php");
+                    exit();
                 }
 
-                session_start();
-                $_SESSION['username'] = $username;
-                header("Location: index.php");
-                exit();
             }
         }
     }

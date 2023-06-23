@@ -53,6 +53,45 @@
             }
         }
 
+        public function like(string $commentID, string $username): void
+        {
+            // Check if the user has already liked the comment
+            $comment = new Comment($this->databaseConnection, $commentID);
+            $user = new User($this->databaseConnection, $username);
+            $userID = $user->getID();
+
+            $likes = explode(",", $comment->getLikes());
+            if (in_array($userID, $likes)) {
+                // Remove the user ID from the likes column in the comment table
+                $updatedLikes = implode(",", array_diff($likes, [$userID]));
+                $updateQuery = "UPDATE comment SET likes = ? WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $updatedLikes, $commentID);
+                mysqli_stmt_execute($updateStatement);
+
+                // Remove the comment ID from the likes column in the user table
+                $userLikes = explode(",", $user->getLikes());
+                $updatedUserLikes = implode(",", array_diff($userLikes, [$commentID]));
+                $updateQuery = "UPDATE user SET likes = ? WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $updatedUserLikes, $userID);
+            } else {
+                // Add the user ID to the likes column in the comment table
+                $updateQuery = "UPDATE comment SET likes = CONCAT(likes, ?, ',') WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $userID, $commentID);
+                mysqli_stmt_execute($updateStatement);
+
+                // Add the comment ID to the likes column in the user table
+                $updateQuery = "UPDATE user SET likes = CONCAT(likes, ?, ',') WHERE ID = ?";
+                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
+                mysqli_stmt_bind_param($updateStatement, "ss", $commentID, $userID);
+            }
+            mysqli_stmt_execute($updateStatement);
+        }
+
+
+
         public function getComments($data, string $postID, int $commentLimit): void
         {
             $page = (int)$data['page'];

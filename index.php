@@ -74,26 +74,8 @@
 				$('#loading').hide();
 				$('.posts').html(data);
 
-                $(".post_likes_count").click(function() {
-                    const postId = $(this).data("post-id");
 
-                    const likeCountElement = $(this).find("span");
-                    const likeCount = parseInt(likeCountElement.text());
-
-                    if ($(this).hasClass("liked")) {
-                        // Decrease the likeCount by 1
-                        const updatedCount = likeCount - 1;
-                        likeCountElement.text(updatedCount);
-                        $(this).removeClass("liked");
-                    } else {
-                        // Increase the likeCount by 1
-                        const updatedCount = likeCount + 1;
-                        likeCountElement.text(updatedCount);
-                        $(this).addClass("liked");
-                    }
-
-                    likePost(postId, userLoggedIn);
-                });
+                likeAction();
 			}
 		});
 
