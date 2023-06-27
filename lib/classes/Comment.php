@@ -66,35 +66,32 @@
             $dateOfCreation = Time::getTimeSinceCreation($this->getDateOfCreation());
             $likeCount = $this->getLikeCount();
             $commentID = $this->getID();
+            $commentLikes = $this->getLikes();
 
-            $liked = str_contains($creatorLikes, $this->commentData['ID']) ? 'liked' : '';
-
+            $liked = str_contains($creatorLikes, $commentLikes) ? '' : 'liked';
             return <<<HTML
                 <article class='comment'>
-                    <header class='comment_header'>
-                        <div class='comment_profile_pic_container'>
-                            <img class='comment_profile_picture' src='$creatorProfilePicture' width='50' height='50'>
-                        </div>
-                        <div class='comment_header_user_info'>
-                            <nav class='comment_header_user_links'>
-                                <a href='$creatorUsername'>$creatorUsername</a>
-                            </nav>
-                            <p class='comment_time_of_creation'>$dateOfCreation</p>
-                        </div>
+                    <header class="comment_header">
+                        <a class="comment_user_link" href="$creatorUsername">
+                            <div class='comment_profile_picture_container'>
+                                <img class='user_profile_picture' src='$creatorProfilePicture' width='50' height='50' alt="User profile picture">
+                            </div>
+                            <h2>$creatorUsername</h2>
+                        </a>
+                        <h3 class="comment_date">$dateOfCreation</h3>
                     </header>
-                    <div class='comment_body'>
+                    <div class="comment_body">
                         $body
+                        
                     </div>
-                    <footer class="comment_footer">
-                        <div class="comment_footer_data">
-                            <button class="likes_count $liked" data-likable-name="comment" data-likable-id="$commentID">
-                                <i class="fa-solid fa-thumbs-up"></i>
-                                <span>$likeCount</span>
-                            </button>
-                        </div>
-                    </footer>
+                    <button class="comment_likes_count $liked" data-likable-name="comment" data-likable-id="$commentID">
+                         <i class="fa-solid fa-thumbs-up"></i>
+                         <span>$likeCount</span>
+                    </button>
+
                 </article>
             HTML;
+
         }
     }
 

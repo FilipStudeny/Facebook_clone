@@ -81,6 +81,65 @@
             mysqli_stmt_execute($updateStatement);
         }
 
+        public function getUserPosts(string $page, string $identifier, int $postLimit): void
+        {
+
+            if($page == 1){
+                $start = 0;
+            }else{
+                $start = ((int)$page - 1) * $postLimit;
+            }
+
+            $posts = "";
+            $query = "SELECT posts FROM `user` WHERE username = '$identifier' ORDER BY ID DESC";
+            $dbQuery = mysqli_query($this->databaseConnection, $query);
+            $numIterations = 0; //Number of iterations check
+            $resultsCount = 1;
+
+            if (mysqli_num_rows($dbQuery) > 0) {
+                while ($postData = mysqli_fetch_array($dbQuery)) {
+
+                    $array = array_map('trim', explode(',',  $postData['posts']));
+                    $postIDs = array_filter($array);
+
+                    foreach ($postIDs as $postID) {
+                        // Process each post ID here
+                        $post = new Post($this->databaseConnection, $postID);
+
+                        if ($numIterations++ < $start) {
+                            continue;
+                        }
+
+                        if ($resultsCount > $postLimit) {
+                            break;
+                        } else {
+                            $resultsCount++;
+                        }
+
+                        $posts .= $post->getHTML(false);
+                    }
+                }
+            }
+
+            if($resultsCount > $postLimit){
+                $value = ((int)$page + 1);
+                $posts .=
+                    <<<HTML
+                            <input type='hidden' class='nextPage' value="$value">
+                            <input type='hidden' class='noMorePosts' value='false'>
+                        HTML;
+            }else{
+                $posts .=
+                    <<<HTML
+                            <input type='hidden' class='noMorePosts' value="true">
+                            <p class='noMorePosts_text'> No more posts to show! </p>
+                        HTML;
+            }
+
+            echo $posts;
+
+
+        }
 
         public function getPostsFromFriends($data, int $postLimit): void
         {

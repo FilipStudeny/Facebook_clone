@@ -20,7 +20,7 @@
 
     </section>
     <nav class="buttons_container">
-        <a class="header_link" href="<?php echo $user['username']; ?>">
+        <a class="header_link" href="profile.php?user=<?php echo $userLoggedIn; ?>">
             <i class="fa-solid fa-address-card"></i>
         </a>
         <a class="header_link" href="#">
@@ -28,7 +28,7 @@
         </a>
 
         <?php if ($userLoggedIn): ?>
-            <a class="header_link" href="/logout.php">
+            <a class="header_link" href="/loggout.php">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </a>
         <?php else: ?>

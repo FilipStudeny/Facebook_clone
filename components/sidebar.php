@@ -1,6 +1,6 @@
 <aside class="user_profile_sidebar">
     <div class="user_profile_picture_container">
-        <a href="<?php echo $userLoggedIn; ?>">
+        <a href="profile.php?user=<?php echo $userLoggedIn; ?>">
             <img src="<?php echo $user['profile_picture']?>" alt="Profile picture" width="100" height="100" >
         </a>
 
@@ -11,7 +11,7 @@
             <i class="fa-solid fa-house"></i>
             <span>Home | Feed</span>
         </a>
-        <a class="user_detail_link" href="#">
+        <a class="user_detail_link" href="profile.php?user=<?php echo $userLoggedIn; ?>">
             <i class="fa-solid fa-address-card"></i>
             <span>Your profile</span>
         </a>

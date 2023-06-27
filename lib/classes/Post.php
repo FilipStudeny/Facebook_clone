@@ -95,6 +95,7 @@
             $forUser = ($postTo === "none") ? "" : "<a href='$postTo'><span>to</span></a>";
 
             $liked = str_contains($creator->getLikes(), $postID) ? 'liked' : '';
+            $s = $creator->getLikes();
             return <<<HTML
                 <article class='post'>
                     <header class='post_header'>
@@ -103,7 +104,7 @@
                         </div>
                         <div class='post_header_user_info'>
                             <nav class='post_header_user_links'>
-                                <a href='$creatorCreatorUsername'>$creatorCreatorUsername</a>
+                                <a href='profile.php?user=$creatorCreatorUsername'>$creatorCreatorUsername</a>
                                 $forUser
                
                             </nav>
@@ -112,6 +113,7 @@
                     </header>
                     <div class='post_body'>
                         $postBodyHTML
+                        
                     </div>
                     <footer class="post_footer">
                         <div class="post_footer_data">

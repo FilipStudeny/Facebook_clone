@@ -41,12 +41,19 @@
             return $this->userData['surname'];
         }
 
+        public function getFullName(): string{
+            return $this->getFirstname() . " " . $this->getSurname();
+        }
+
         public function getLikes(): string{
             return $this->userData['likes'];
         }
+        public function getPosts(): string{
+            return $this->userData['posts'];
+        }
 
-        public function getFullName(): string{
-            return $this->getFirstname() . " " . $this->getSurname();
+        public function getComments(): string{
+            return $this->userData['comments'];
         }
 
         public function getNumberOfPosts(): int {

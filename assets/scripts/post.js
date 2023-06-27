@@ -1,7 +1,7 @@
 
 
 const likeAction = () => {
-    $(".likes_count").click(function() {
+    $(".likes_count, .comment_likes_count").click(function() {
         const ID = $(this).data("likable-id");
         const action = $(this).data("likable-name");
 
@@ -22,7 +22,10 @@ const likeAction = () => {
 
         likeContent(ID, userLoggedIn, action);
     });
-}
+
+};
+
+
 function likeContent(postId, userLoggedIn, action) {
     $.ajax({
         url: "/lib/Ajax_LikeAction.php",

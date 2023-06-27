@@ -50,7 +50,7 @@
 
             </section>
 
-            <section class="posts">
+            <section class="comments">
 
             </section>
             
@@ -82,19 +82,19 @@
 
                 success: function(data) {
                     $('#loading').hide();
-                    $('.posts').html(data);
+                    $('.comments').html(data);
 
                     likeAction();
                 }
             });
 
             $(window).scroll(function() {
-                var height = $('.posts').height(); //Div containing posts
+                var height = $('.comments').height(); //Div containing posts
                 var scroll_top = $(this).scrollTop();
-                var page = $('.posts').find('.nextPage').val();
-                var noMorePosts = $('.posts').find('.noMorePosts').val();
+                var page = $('.comments').find('.nextPage').val();
+                var noMorePosts = $('.comments').find('.noMorePosts').val();
 
-                if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts == 'false'){
+                if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts === 'false'){
                     $('#loading').show();
                     var ajaxReq = $.ajax({
                         url:  "lib/Ajax_Comments.php",
@@ -105,11 +105,11 @@
 
 
                         success: function(response) {
-                            $('.posts').find('.nextPage').remove(); //Removes current .nextpage
-                            $('.posts').find('.noMorePosts').remove(); //Removes current .nextpage
+                            $('.comments').find('.nextPage').remove(); //Removes current .nextpage
+                            $('.comments').find('.noMorePosts').remove(); //Removes current .nextpage
 
                             $('#loading').hide();
-                            $('.posts').append(response);
+                            $('.comments').append(response);
                         }
                     });
 

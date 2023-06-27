@@ -84,12 +84,72 @@
 
                 // Add the comment ID to the likes column in the user table
                 $updateQuery = "UPDATE user SET likes = CONCAT(likes, ?, ',') WHERE ID = ?";
-                $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
-                mysqli_stmt_bind_param($updateStatement, "ss", $commentID, $userID);
+                $updateStatement = mysqli_prepare($this->databaseConnection,  $updateQuery);
+                $newCommentLike = "@" . $commentID;
+                mysqli_stmt_bind_param($updateStatement, "ss", $newCommentLike, $userID);
             }
             mysqli_stmt_execute($updateStatement);
         }
 
+        public function getUserComments(string $page, string $identifier, int $postLimit): void
+        {
+
+            if($page == 1){
+                $start = 0;
+            }else{
+                $start = ((int)$page - 1) * $postLimit;
+            }
+
+            $posts = "";
+            $query = "SELECT comments FROM `user` WHERE username = '$identifier' ORDER BY ID DESC";
+            $dbQuery = mysqli_query($this->databaseConnection, $query);
+            $numIterations = 0; //Number of iterations check
+            $resultsCount = 1;
+
+            if (mysqli_num_rows($dbQuery) > 0) {
+                while ($commentData = mysqli_fetch_array($dbQuery)) {
+
+                    $array = array_map('trim', explode(',',  $commentData['comments']));
+                    $commentIDs = array_filter($array);
+
+                    foreach ($commentIDs as $commentID) {
+                        // Process each post ID here
+                        $comment = new Comment($this->databaseConnection, $commentID);
+
+                        if ($numIterations++ < $start) {
+                            continue;
+                        }
+
+                        if ($resultsCount > $postLimit) {
+                            break;
+                        } else {
+                            $resultsCount++;
+                        }
+
+                        $posts .= $comment->getHTML();
+                    }
+                }
+            }
+
+            if($resultsCount > $postLimit){
+                $value = ((int)$page + 1);
+                $posts .=
+                    <<<HTML
+                            <input type='hidden' class='nextPage' value="$value">
+                            <input type='hidden' class='noMorePosts' value='false'>
+                        HTML;
+            }else{
+                $posts .=
+                    <<<HTML
+                            <input type='hidden' class='noMorePosts' value="true">
+                            <p class='noMorePosts_text'> No more comments to show! </p>
+                        HTML;
+            }
+
+            echo $posts;
+
+
+        }
 
 
         public function getComments($data, string $postID, int $commentLimit): void
