@@ -1,25 +1,35 @@
 
 <?php
-//<img class="user_profile_picture" src="<?php echo $user['profile_picture']
-require_once "./components/header.php";
-require_once "./lib/config/DBconnection.php";
-require_once "./lib/controllers/PostManager.php";
-require_once "./lib/classes/FormError.php";
+    require_once "./components/header.php";
+    require_once "./lib/config/DBconnection.php";
+    require_once "./lib/controllers/PostManager.php";
+    require_once "./lib/classes/FormError.php";
+    require_once "./lib/classes/User.php";
 
 
-$connection = DBConnection::connect();
-$userLoggedIn = $_SESSION['username'];
+    $connection = DBConnection::connect();
+    $userLoggedIn = $_SESSION['username'];
 
-if (!isset($userLoggedIn)) {
-    header("Location: login.php");
-    exit();
-}
+    if (!isset($userLoggedIn)) {
+        header("Location: login.php");
+        exit();
+    }
 
-if(isset($_POST['submit_new_post'])){
-    $post = new PostManager($connection, $userLoggedIn);
-    $post->createNewPost($_POST['new_post_body'],'none');
-    header("Location: index.php"); //Disables post resubmition by refreshing page
-}
+    if(isset($_POST['submit_new_post'])){
+        $post = new PostManager($connection, $userLoggedIn);
+        $post->createNewPost($_POST['new_post_body'],'none');
+        header("Location: index.php"); //Disables post resubmition by refreshing page
+    }
+
+
+    $useridentifier = $_GET['user'];
+    $user = new User($connection, $useridentifier);
+
+    $username = $user->getUsername();
+    $fullname = $user->getFullName();
+    $email = $user->getEmail();
+    $profilePicture = $user->getProfilePicture();
+    $userID = $user->getID();
 
 ?>
 
@@ -32,24 +42,23 @@ if(isset($_POST['submit_new_post'])){
 
     <section class="profile_user">
         <div class="profile_user_picture_container">
-            <img src="<?php echo $user['profile_picture']?>" alt="Profile picture" width="100" height="100" >
+            <img src="<?php echo $profilePicture?>" alt="Profile picture" width="100" height="100" >
         </div>
 
         <div class="profile_user_data">
             <div class="profile_user_data_header">
                 <div>
-                    <h2 class="profile_user_data_username">username</h2>
+                    <h2 class="profile_user_data_username"><?php echo $username;  ?></h2>
                     <div class="profile_user_name_container">
-                        <p>firstname</p><p>surname</p>
+                        <p><?php echo $fullname;  ?></p>
                     </div>
                 </div>
                 <div class="profile_user_data_actions">
-                    <button><i class="fa-solid fa-user-plus"></i>Add friend</button>
+                    <button id="addFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Add friend</button>
                     <button><i class="fa-solid fa-message"></i>Send a message</button>
                 </div>
             </div>
 
-            <p>email@gmail.com</p>
             <section class="profile_user_description">
                 asdawd asdn awjdna jsnd oawnd jsadj najwnd jsdnajsnd jandd
             </section>
@@ -59,7 +68,7 @@ if(isset($_POST['submit_new_post'])){
     </section>
     <section class="profile_user_content">
         <div class="profile_content_switch">
-            <button class="profile_content_button" value="posts">Posts</button>
+            <button class="profile_content_button selected" value="posts">Posts</button>
             <button class="profile_content_button" value="comments">Comments</button>
             <button class="profile_content_button" value="likes">Likes</button>
         </div>
@@ -77,15 +86,38 @@ if(isset($_POST['submit_new_post'])){
 
 
 </body>
-<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity='sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=', crossorigin='anonymous'></script>
+<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity='sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=' crossorigin='anonymous'></script>
 <script src="./assets/scripts/profile.js"></script>
-
+<script src="./assets/scripts/post.js"></script>
 <script>
     $(document).ready(function() {
         const userName = '<?php echo $_GET['user']; ?>';
+        const userLoggedIn = '<?php echo $userLoggedIn; ?>';
         var page = 1; // Initial page number
         let selectedContent = "post";
         var isLoading = false; // Flag to indicate if a request is in progress
+
+
+
+        $('#addFriendButton').click(function() {
+            const ID = $(this).data("user-id");
+            const action = $(this).data("user-action");
+
+
+            $.ajax({
+                url: "lib/Ajax_FriendRequest.php",
+                type: "POST",
+                data: "&id=" + ID + "&action=" + action + "&userLoggedIn=" + userLoggedIn,
+
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors if the request fails
+                    console.error(error);
+                }
+            });
+        });
 
         loadPosts(selectedContent);
 
@@ -108,6 +140,8 @@ if(isset($_POST['submit_new_post'])){
                     $('#loading').hide();
                     $('.profile_content').append(data); // Append the new content
                     isLoading = false; // Set the flag back to false after the request is complete
+
+                    likeAction(userLoggedIn);
                 }
             });
         }
@@ -129,14 +163,12 @@ if(isset($_POST['submit_new_post'])){
             // Load the corresponding content based on the button clicked
             if (buttonText === 'posts') {
                 // Load posts content
-                $('.profile_content').removeClass('comments likes').addClass('posts');
                 selectedContent = "post"
                 page = 1;
                 loadPosts(selectedContent);
             }
             if (buttonText === 'comments') {
                 // Load comments content
-                $('.profile_content').removeClass('posts likes').addClass('comments');
                 selectedContent = "comment"
                 page = 1;
                 loadPosts(selectedContent);
@@ -145,7 +177,6 @@ if(isset($_POST['submit_new_post'])){
             }
             if (buttonText === 'likes') {
                 // Load likes content
-                $('.profile_content').removeClass('posts comments').addClass('likes');
                 selectedContent = "like"
                 page = 1;
                 loadPosts(selectedContent);

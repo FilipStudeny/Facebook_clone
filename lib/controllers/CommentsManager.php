@@ -71,7 +71,7 @@
 
                 // Remove the comment ID from the likes column in the user table
                 $userLikes = explode(",", $user->getLikes());
-                $updatedUserLikes = implode(",", array_diff($userLikes, [$commentID]));
+                $updatedUserLikes = implode(",", array_diff($userLikes, ["@" . $commentID]));
                 $updateQuery = "UPDATE user SET likes = ? WHERE ID = ?";
                 $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
                 mysqli_stmt_bind_param($updateStatement, "ss", $updatedUserLikes, $userID);
@@ -165,6 +165,7 @@
             $comments = "";
             $query = "SELECT ID FROM comment WHERE post_id='$postID' ORDER BY ID DESC";
             $dbQuery = mysqli_query($this->databaseConnection, $query);
+
             $numIterations = 0; //Number of iterations check
             $resultsCount = 1;
 

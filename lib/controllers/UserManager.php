@@ -1,7 +1,6 @@
 <?php
 
-    require_once "./lib/classes/User.php";
-    require_once "./lib/interfaces/IManager.php";
+    require_once __DIR__ . '/../classes/User.php';
 
     class UserManager{
 
@@ -11,10 +10,6 @@
 
         }
 
-        public function getByID(string $id)
-        {
-            // TODO: Implement getByID() method.
-        }
 
         public function createNew(array $data): void
         {
@@ -41,6 +36,45 @@
             return new User($this->databaseConnection, $identifier);
         }
 
+        public function sendFriendRequest(string $fromID, string $toID): void
+        {
+            $newFriend = new User($this->databaseConnection, $toID);
+            $newFriendID = $newFriend->getID();
+
+            if ($newFriend->isFriendWith($fromID)) {
+                // Users are already friends, remove the user from the friends column
+                $userQuery = "UPDATE user SET friends = REPLACE(friends, '{$fromID},', '') WHERE ID = ?";
+                $userStatement = mysqli_prepare($this->databaseConnection, $userQuery);
+                mysqli_stmt_bind_param($userStatement, "s", $newFriendID);
+                mysqli_stmt_execute($userStatement);
+            } else {
+                $type = "friend_request";
+                $date = date("Y-m-d H:i:s");
+                $content = "User '{$fromID}' wants to be your friend.";
+
+                // Prepare the SQL statement
+                $query = "INSERT INTO notifications (type, for_user_id, content, date_of_creation, opened) 
+                  VALUES (?, ?, ?, ?, '0')";
+                $statement = mysqli_prepare($this->databaseConnection, $query);
+
+                // Bind the parameters
+                mysqli_stmt_bind_param($statement, "ssss", $type, $newFriendID, $content, $date);
+
+                // Execute the prepared statement
+                mysqli_stmt_execute($statement);
+
+                // Check if the insertion was successful
+                if (mysqli_stmt_affected_rows($statement) > 0) {
+                    $returnedID = mysqli_insert_id($this->databaseConnection);
+
+                    $userQuery = "UPDATE user SET notifications = CONCAT(notifications, '{$returnedID},') WHERE ID = ?";
+                    $userStatement = mysqli_prepare($this->databaseConnection, $userQuery);
+                    mysqli_stmt_bind_param($userStatement, "s", $newFriendID);
+                    mysqli_stmt_execute($userStatement);
+                }
+            }
+        }
+
         public function userExists(string $email, string $password): bool
         {
             $hashedPassword = md5($password);
@@ -64,16 +98,6 @@
             $query = "SELECT * FROM User WHERE email='$email'";
             $result = mysqli_query($this->databaseConnection, $query);
             return mysqli_num_rows($result) > 0;
-        }
-
-        public function delete(string $id)
-        {
-            // TODO: Implement delete() method.
-        }
-
-        public function updateData(string $data)
-        {
-            // TODO: Implement updateData() method.
         }
 
         public function checkIfAlreadyInUse(string $email, string $username): array

@@ -94,13 +94,17 @@
 
             $forUser = ($postTo === "none") ? "" : "<a href='$postTo'><span>to</span></a>";
 
-            $liked = str_contains($creator->getLikes(), $postID) ? 'liked' : '';
-            $s = $creator->getLikes();
+            $isClickable = $isPostDetail ? "" : 'body_link';
+
+            $liked = str_contains($this->postData['likes'], $creator->getID()) ? 'likes_count liked' : 'likes_count';
+
             return <<<HTML
                 <article class='post'>
                     <header class='post_header'>
                         <div class='post_profile_pic_container'>
-                            <img class='post_profile_picture' src='$creatorCreatorProfilePicture' width='50' height='50' alt="User profile picture">
+                            <a href="profile.php?user=$creatorCreatorUsername">
+                                <img class='post_profile_picture' src='$creatorCreatorProfilePicture' width='50' height='50' alt="User profile picture">
+                            </a>
                         </div>
                         <div class='post_header_user_info'>
                             <nav class='post_header_user_links'>
@@ -111,9 +115,8 @@
                             <p class='post_time_of_creation'>$postDate</p>
                         </div>
                     </header>
-                    <div class='post_body'>
+                    <div class='post_body $isClickable'>
                         $postBodyHTML
-                        
                     </div>
                     <footer class="post_footer">
                         <div class="post_footer_data">
@@ -122,7 +125,7 @@
                                 <i class="fa-solid fa-comment post_comments"></i>
                                 <span>$commentsCount</span>
                             </button>
-                            <button class="likes_count $liked" data-likable-name="post" data-likable-id="$postID">
+                            <button class='$liked' data-likable-name="post" data-likable-id="$postID">
                                 <i class="fa-solid fa-thumbs-up"></i>
                                 <span>$likeCount</span>
                             </button>

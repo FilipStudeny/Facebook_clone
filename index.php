@@ -75,7 +75,7 @@
 				$('.posts').html(data);
 
 
-                likeAction();
+                likeAction(userLoggedIn);
 			}
 		});
 

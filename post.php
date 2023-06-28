@@ -84,7 +84,7 @@
                     $('#loading').hide();
                     $('.comments').html(data);
 
-                    likeAction();
+                    likeAction(userLoggedIn);
                 }
             });
 
