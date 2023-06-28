@@ -2,23 +2,45 @@
 
     require_once __DIR__ . '/../classes/Post.php';
     require_once __DIR__ . '/../classes/User.php';
+    require_once __DIR__ . '/../controllers/UserManager.php';
 
     class PostManager{
 
         private mysqli $databaseConnection;
         private string $loggedInUser;
+        private UserManager $userManager;
 
         public function __construct(mysqli $databaseConnection, string $loggedInUser)
         {
             $this->databaseConnection = $databaseConnection;
             $this->loggedInUser = $loggedInUser;
+            $this->userManager = new UserManager($databaseConnection);
+        }
+
+        public function getPost(string $identifier): Post{
+            // $query = "SELECT post.*, user.username FROM post JOIN user ON post.creator_id = user.ID WHERE post.ID = ?; ";
+            $query = "
+            SELECT post.*, user.username, COUNT(comment.ID) AS comment_count, 
+                   (LENGTH(post.likes) - LENGTH(REPLACE(post.likes, ',', ''))) AS likes_count
+            FROM post
+            JOIN user ON post.creator_id = user.ID
+            LEFT JOIN comment ON post.ID = comment.post_id
+            WHERE post.ID = ?
+            GROUP BY post.ID, user.username;";
+
+            $statement = mysqli_prepare($this->databaseConnection, $query);
+            mysqli_stmt_bind_param($statement, "s", $identifier);
+            mysqli_stmt_execute($statement);
+            $result = mysqli_stmt_get_result($statement);
+            $data = mysqli_fetch_array($result);
+            return new Post($data);
         }
 
         public function createNewPost(string $postData, string $postedToUser): void
         {
             $body = strip_tags($postData);
             $body = mysqli_real_escape_string($this->databaseConnection, $body);
-    
+
             //Allow for line breaks
             $body = str_replace('\r\n', "\n", $body);
             $body = nl2br($body);
@@ -30,7 +52,7 @@
             }
 
             $postCreatedAt = date("Y-m-d H:i:s");
-            $creator = new User($this->databaseConnection, $this->loggedInUser);
+            $creator = $this->userManager->getUser($this->loggedInUser);
             $creatorID = $creator->getID();
 
             $query = "INSERT INTO post (postBody, creator_id, created_for_who, date_of_creation) VALUES ('$body', '$creatorID', '$postedToUser', '$postCreatedAt')";
@@ -47,8 +69,8 @@
         public function like(string $postID, string $username): void
         {
             // Check if the user has already liked the post
-            $post = new Post($this->databaseConnection, $postID);
-            $user = new User($this->databaseConnection, $username);
+            $post = $this->getPost($postID);
+            $user = $this->userManager->getUser($username);
             $userID = $user->getID();
 
             $likes = explode(",", $post->getLikes());
@@ -104,7 +126,7 @@
 
                     foreach ($postIDs as $postID) {
                         // Process each post ID here
-                        $post = new Post($this->databaseConnection, $postID);
+                        $post = $this->getPost($postID);
 
                         if ($numIterations++ < $start) {
                             continue;
@@ -143,15 +165,15 @@
 
         public function getPostsFromFriends($data, int $postLimit): void
         {
-            $loggedInUser = new User($this->databaseConnection, $this->loggedInUser);
+            $loggedInUser = $this->userManager->getUser($this->loggedInUser);
             $page = (int)$data['page'];
-    
+
             if($page == 1){
                 $start = 0;
             }else{
                 $start = ((int)$page - 1) * $postLimit;
             }
-    
+
             $posts = "";
             $query = "SELECT ID FROM post ORDER BY ID DESC";
             $dbQuery = mysqli_query($this->databaseConnection, $query);
@@ -162,8 +184,8 @@
                 while($postData = mysqli_fetch_array($dbQuery)){
                     $postID = $postData['ID'];
 
-                    $post = new Post($this->databaseConnection, $postID);
-                    $postCreator = new User($this->databaseConnection, $post->getCreatorUsername());
+                    $post = $this->getPost($postID);
+                    $postCreator = $this->userManager->getUser($post->getCreatorUsername());
 
                     if($loggedInUser->isFriendWith($postCreator->getUsername())){
 

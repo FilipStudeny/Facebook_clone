@@ -4,14 +4,21 @@
     require_once __DIR__ . '/../classes/User.php';
     require_once __DIR__ . '/../classes/Comment.php';
 
+    require_once __DIR__ . '/../controllers/PostManager.php';
+    require_once __DIR__ . '/../controllers/CommentsManager.php';
+
     class LikesManager
     {
 
         private mysqli $databaseConnection;
+        private PostManager $postManager;
+        private CommentsManager $commentsManager;
 
         public function __construct(mysqli $databaseConnection)
         {
             $this->databaseConnection = $databaseConnection;
+            $this->postManager = new PostManager($databaseConnection, "");
+            $this->commentsManager = new CommentsManager($databaseConnection, "");
         }
 
         public function getUserLikes(string $page, string $identifier, int $postLimit): void
@@ -41,10 +48,10 @@
 
                         $content = "";
                         if($isComment){
-                            $comment = new Comment($this->databaseConnection, str_replace("@", "", $likeID));
+                            $comment = $this->commentsManager->getComment(str_replace("@", "", $likeID));
                             $content = $comment;
                         }else{
-                            $post = new Post($this->databaseConnection, $likeID);
+                            $post = $this->postManager->getPost($likeID);
                             $content = $post;
                         }
 

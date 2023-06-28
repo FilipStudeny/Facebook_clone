@@ -33,12 +33,19 @@
         }
 
         public function getUser(string $identifier): ?User {
-            return new User($this->databaseConnection, $identifier);
+
+            $query = "SELECT * FROM user WHERE email=? OR username=? OR id=?";
+            $statement = mysqli_prepare($this->databaseConnection, $query);
+            mysqli_stmt_bind_param($statement, "sss", $identifier, $identifier, $identifier);
+            mysqli_stmt_execute($statement);
+            $result = mysqli_stmt_get_result($statement);
+            $userData = mysqli_fetch_array($result);
+            return new User($userData);
         }
 
         public function sendFriendRequest(string $fromID, string $toID): void
         {
-            $newFriend = new User($this->databaseConnection, $toID);
+            $newFriend = $this->getUser($toID);
             $newFriendID = $newFriend->getID();
 
             if ($newFriend->isFriendWith($fromID)) {

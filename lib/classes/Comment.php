@@ -7,18 +7,10 @@
 
     class Comment{
         private array $commentData;
-        private mysqli $databaseConnection;
 
-        public function __construct(mysqli $databaseConnection, string $commentID)
+        public function __construct(array $data)
         {
-            $this->databaseConnection = $databaseConnection;
-
-            $query = "SELECT comment.*, (LENGTH(comment.likes) - LENGTH(REPLACE(comment.likes, ',', ''))) AS like_count, user.ID AS creator_id FROM comment JOIN user ON comment.creator_id = user.ID WHERE comment.ID = ?";
-            $statement = mysqli_prepare($this->databaseConnection, $query);
-            mysqli_stmt_bind_param($statement, "s", $commentID);
-            mysqli_stmt_execute($statement);
-            $result = mysqli_stmt_get_result($statement);
-            $this->commentData = mysqli_fetch_array($result);
+            $this->commentData = $data;
         }
 
         public function getID(): int {
@@ -57,7 +49,8 @@
 
         public function getHTML(): string
         {
-            $creator = new User($this->databaseConnection, $this->getCreatorID());
+            $userManager = new UserManager(DBConnection::connect());
+            $creator = $userManager->getUser($this->getCreatorID());
             $creatorUsername = $creator->getUsername();
             $creatorProfilePicture = $creator->getProfilePicture();
             $creatorLikes = $creator->getLikes();

@@ -3,19 +3,35 @@
     require_once __DIR__ . '/../classes/Post.php';
     require_once __DIR__ . '/../classes/User.php';
     require_once __DIR__ . '/../classes/Comment.php';
+    require_once __DIR__ . '/../controllers/UserManager.php';
+    require_once __DIR__ . '/../controllers/PostManager.php';
 
     class CommentsManager{
 
 
         private mysqli $databaseConnection;
         private string $loggedInUser;
+        private UserManager $userManager;
 
         public function __construct(mysqli $databaseConnection, string $loggedInUser)
         {
             $this->databaseConnection = $databaseConnection;
             $this->loggedInUser = $loggedInUser;
+
+            $this->userManager = new UserManager($databaseConnection);
         }
 
+        public function getComment(string $identifier): Comment{
+
+            $query = "SELECT comment.*, (LENGTH(comment.likes) - LENGTH(REPLACE(comment.likes, ',', ''))) 
+                    AS like_count, user.ID AS creator_id FROM comment JOIN user ON comment.creator_id = user.ID WHERE comment.ID = ?";
+            $statement = mysqli_prepare($this->databaseConnection, $query);
+            mysqli_stmt_bind_param($statement, "s", $identifier);
+            mysqli_stmt_execute($statement);
+            $result = mysqli_stmt_get_result($statement);
+            $data = mysqli_fetch_array($result);
+            return new Comment($data);
+        }
 
         public function create(string $data, string $postID): void
         {
@@ -33,22 +49,22 @@
             }
 
             $createdAt = date("Y-m-d H:i:s");
-            $creator = new User($this->databaseConnection, $this->loggedInUser);
+            $creator = $this->userManager->getUser($this->loggedInUser);
             $creatorID = $creator->getID();
 
             $query = "INSERT INTO comment (comment, creator_id, post_id, date_of_creation) 
                     VALUES ('$body', '$creatorID', '$postID', '$createdAt')";
 
-            $dbQuery = mysqli_query($this->databaseConnection, $query);
+            mysqli_query($this->databaseConnection, $query);
             $returnedCommentID = mysqli_insert_id($this->databaseConnection);
 
             if ($returnedCommentID) {
                 $userQuery = "UPDATE user SET comments = CONCAT(comments, '$returnedCommentID,') WHERE ID = $creatorID";
-                $dbUserQuery = mysqli_query($this->databaseConnection, $userQuery);
+                mysqli_query($this->databaseConnection, $userQuery);
 
                 // Update the comment count in the post table
                 $updatePostQuery = "UPDATE post SET comments = CONCAT(comments, '$returnedCommentID,') WHERE ID = $postID";
-                $dbUpdatePostQuery = mysqli_query($this->databaseConnection, $updatePostQuery);
+                mysqli_query($this->databaseConnection, $updatePostQuery);
 
             }
         }
@@ -56,8 +72,8 @@
         public function like(string $commentID, string $username): void
         {
             // Check if the user has already liked the comment
-            $comment = new Comment($this->databaseConnection, $commentID);
-            $user = new User($this->databaseConnection, $username);
+            $comment = $this->getComment($commentID);
+            $user = $this->userManager->getUser($username);
             $userID = $user->getID();
 
             $likes = explode(",", $comment->getLikes());
@@ -114,7 +130,7 @@
 
                     foreach ($commentIDs as $commentID) {
                         // Process each post ID here
-                        $comment = new Comment($this->databaseConnection, $commentID);
+                        $comment = $this->getComment($commentID);
 
                         if ($numIterations++ < $start) {
                             continue;
@@ -173,7 +189,7 @@
                 while($data = mysqli_fetch_array($dbQuery)){
                     $commentID = $data['ID'];
 
-                    $comment = new Comment($this->databaseConnection, $commentID);
+                    $comment = $this->getComment($commentID);
 
                     if($numIterations++ < $start) { continue; }
                     if($resultsCount > $commentLimit){

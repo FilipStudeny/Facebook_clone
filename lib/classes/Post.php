@@ -5,29 +5,11 @@
     use App\lib\utils\Time;
 
     class Post {
-        private mysqli $databaseConnection;
         private array|null|false $postData;
 
-        public function __construct(mysqli $databaseConnection, string $id)
+        public function __construct(array $data)
         {
-            $this->databaseConnection = $databaseConnection;
-
-           // $query = "SELECT post.*, user.username FROM post JOIN user ON post.creator_id = user.ID WHERE post.ID = ?; ";
-            $query = "
-            SELECT post.*, user.username, COUNT(comment.ID) AS comment_count, 
-                   (LENGTH(post.likes) - LENGTH(REPLACE(post.likes, ',', ''))) AS likes_count
-            FROM post
-            JOIN user ON post.creator_id = user.ID
-            LEFT JOIN comment ON post.ID = comment.post_id
-            WHERE post.ID = ?
-            GROUP BY post.ID, user.username;";
-
-            $statement = mysqli_prepare($this->databaseConnection, $query);
-            mysqli_stmt_bind_param($statement, "s", $id);
-            mysqli_stmt_execute($statement);
-            $result = mysqli_stmt_get_result($statement);
-            $this->postData = mysqli_fetch_array($result);
-
+            $this->postData = $data;
         }
 
         private function getID(): int {
@@ -74,7 +56,8 @@
 
         function getHTML(bool $isPostDetail): string
         {
-            $creator = new User($this->databaseConnection, $this->getCreatorUsername());
+            $userManager = new UserManager(DBConnection::connect());
+            $creator = $userManager->getUser($this->getCreatorUsername());
 
             $creatorCreatorProfilePicture = $creator->getProfilePicture();
             $creatorCreatorUsername = $creator->getUsername();

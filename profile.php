@@ -3,6 +3,8 @@
     require_once "./components/header.php";
     require_once "./lib/config/DBconnection.php";
     require_once "./lib/controllers/PostManager.php";
+    require_once "./lib/controllers/UserManager.php";
+
     require_once "./lib/classes/FormError.php";
     require_once "./lib/classes/User.php";
 
@@ -23,7 +25,8 @@
 
 
     $useridentifier = $_GET['user'];
-    $user = new User($connection, $useridentifier);
+    $userManager = new UserManager($connection);
+    $user = $userManager->getUser($useridentifier);
 
     $username = $user->getUsername();
     $fullname = $user->getFullName();

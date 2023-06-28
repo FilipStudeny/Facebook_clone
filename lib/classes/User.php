@@ -2,19 +2,11 @@
 
 
     class User{
-        private mysqli $databaseConnection;
         private array $userData;
 
-        public function __construct(mysqli $databaseConnection, string $identifier)
+        public function __construct(array $data)
         {
-            $this->databaseConnection = $databaseConnection;
-
-            $query = "SELECT * FROM user WHERE email=? OR username=? OR id=?";
-            $statement = mysqli_prepare($this->databaseConnection, $query);
-            mysqli_stmt_bind_param($statement, "sss", $identifier, $identifier, $identifier);
-            mysqli_stmt_execute($statement);
-            $result = mysqli_stmt_get_result($statement);
-            $this->userData = mysqli_fetch_array($result);
+            $this->userData = $data;
         }
 
         public function getID(): int{
