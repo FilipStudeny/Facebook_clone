@@ -29,9 +29,10 @@
             <section class="post_detail">
 
                 <?php
+                    $postManager = new PostManager($connection, "");
                     $postID = $_GET['id'];
-                    $post = new Post($connection, $postID);
-                    $post->render(true);
+                    $post = $postManager->getPost($postID);
+                    $post->render(true, $userLoggedIn);
 
                 ?>
 

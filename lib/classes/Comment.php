@@ -21,7 +21,7 @@
             return $this->commentData['comment'];
         }
 
-        private function getPostID(): string{
+        public function getPostID(): string{
             return $this->commentData['post_id'];
         }
 
@@ -38,9 +38,10 @@
             return $this->commentData['like_count'];
         }
 
-        private function getCreatorID(): string{
+        public function getCreatorID(): string{
             return $this->commentData['creator_id'];
         }
+
 
 
         public function render(array $data): void{

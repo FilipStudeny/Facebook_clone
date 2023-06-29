@@ -15,6 +15,11 @@
             <i class="fa-solid fa-address-card"></i>
             <span>Your profile</span>
         </a>
+
+        <a class="user_detail_link" href="notifications.php">
+            <i class="fa-solid fa-bell"></i>
+            <span>Notifications</span>
+        </a>
         <a class="user_detail_link" href="#">
             <i class="fa-solid fa-message"></i>
             <span>Chat | Messages</span>

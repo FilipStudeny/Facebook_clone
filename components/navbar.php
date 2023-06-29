@@ -20,14 +20,17 @@
 
     </section>
     <nav class="buttons_container">
-        <a class="header_link" href="profile.php?user=<?php echo $userLoggedIn; ?>">
-            <i class="fa-solid fa-address-card"></i>
-        </a>
-        <a class="header_link" href="#">
-            <i class="fa-solid fa-gear"></i>
-        </a>
-
         <?php if ($userLoggedIn): ?>
+            <a class="header_link" href="profile.php?user=<?php echo $userLoggedIn; ?>">
+                <i class="fa-solid fa-address-card"></i>
+            </a>
+            <a class="header_link" href="#">
+                <i class="fa-solid fa-gear"></i>
+            </a>
+
+            <a class="header_link" href="notifications.php">
+                <i class="fa-solid fa-bell"></i>
+            </a>
             <a class="header_link" href="/loggout.php">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </a>

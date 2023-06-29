@@ -16,6 +16,10 @@
             return $this->postData['ID'];
         }
 
+        public function getCreatorID(): string{
+            return $this->postData['creator_id'];
+        }
+
         private function getPost(): string{
             return $this->postData['postBody'];
         }
@@ -32,7 +36,7 @@
             return $this->postData['created_for_who'];
         }
 
-        private function getComments(): string{
+        public function getComments(): string{
             return $this->postData['comments'];
         }
 
@@ -49,12 +53,12 @@
         }
 
 
-        public function render(bool $isPostDetail): void
+        public function render(bool $isPostDetail, string $loggedInUser): void
         {
-            echo $this->getHTML($isPostDetail);
+            echo $this->getHTML($isPostDetail, $loggedInUser);
         }
 
-        function getHTML(bool $isPostDetail): string
+        function getHTML(bool $isPostDetail, string $loggedInUser): string
         {
             $userManager = new UserManager(DBConnection::connect());
             $creator = $userManager->getUser($this->getCreatorUsername());
@@ -80,6 +84,13 @@
             $isClickable = $isPostDetail ? "" : 'body_link';
 
             $liked = str_contains($this->postData['likes'], $creator->getID()) ? 'likes_count liked' : 'likes_count';
+            $isCreator = $creatorCreatorUsername == $loggedInUser ;
+
+            $deleteButton = $isCreator ? '
+                <button class="post_header_delete_post_button" data-post-id="'.$postID.'">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete post
+                </button>' : '';
 
             return <<<HTML
                 <article class='post'>
@@ -97,6 +108,9 @@
                             </nav>
                             <p class='post_time_of_creation'>$postDate</p>
                         </div>
+                        
+                        $deleteButton
+                      
                     </header>
                     <div class='post_body $isClickable'>
                         $postBodyHTML

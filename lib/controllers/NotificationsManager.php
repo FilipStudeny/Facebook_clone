@@ -2,28 +2,36 @@
 
     require_once __DIR__ . '/../classes/Post.php';
     require_once __DIR__ . '/../classes/User.php';
-    require_once __DIR__ . '/../classes/Comment.php';
+    require_once __DIR__ . '/../classes/Notification.php';
 
-    require_once __DIR__ . '/../controllers/PostManager.php';
-    require_once __DIR__ . '/../controllers/CommentsManager.php';
+    require_once __DIR__ . '/../controllers/UserManager.php';
 
-    class LikesManager
+    class NotificationsManager
     {
-
         private mysqli $databaseConnection;
-        private PostManager $postManager;
-        private CommentsManager $commentsManager;
+        private string $loggedInUser;
+        private UserManager $userManager;
 
-        public function __construct(mysqli $databaseConnection)
+        public function __construct(mysqli $databaseConnection, string $loggedInUser)
         {
             $this->databaseConnection = $databaseConnection;
-            $this->postManager = new PostManager($databaseConnection, "");
-            $this->commentsManager = new CommentsManager($databaseConnection, "");
+            $this->loggedInUser = $loggedInUser;
+            $this->userManager = new UserManager($databaseConnection);
         }
 
-        public function getUserLikes(string $page, string $identifier, int $postLimit): void
-        {
+        public function getNotification(string $identifier): Notification{
+            $query = "SELECT * FROM notifications WHERE ID = ?;";
 
+            $statement = mysqli_prepare($this->databaseConnection, $query);
+            mysqli_stmt_bind_param($statement, "s", $identifier);
+            mysqli_stmt_execute($statement);
+            $result = mysqli_stmt_get_result($statement);
+            $data = mysqli_fetch_array($result);
+            return new Notification($data);
+        }
+
+        public function getAll(int $page, string $identifier, int $postLimit): void
+        {
             if($page == 1){
                 $start = 0;
             }else{
@@ -31,31 +39,20 @@
             }
 
             $html = "";
-            $query = "SELECT likes FROM `user` WHERE username = '$identifier' ORDER BY ID DESC";
+            $query = "SELECT notifications FROM `user` WHERE username = '$identifier' ORDER BY ID DESC";
             $dbQuery = mysqli_query($this->databaseConnection, $query);
             $numIterations = 0; //Number of iterations check
             $resultsCount = 1;
 
             if (mysqli_num_rows($dbQuery) > 0) {
-                while ($postData = mysqli_fetch_array($dbQuery)) {
+                while ($data = mysqli_fetch_array($dbQuery)) {
 
-                    $array = array_map('trim', explode(',',  $postData['likes']));
-                    $likesIDs = array_filter($array);
+                    $array = array_map('trim', explode(',',  $data['notifications']));
+                    $notificationsIDs = array_filter($array);
 
-                    foreach ($likesIDs as $likeID) {
-
-                        $isComment = str_contains($likeID, "@");
-
-                        $content = "";
-                        if($isComment){
-                            $comment = $this->commentsManager->getComment(str_replace("@", "", $likeID));
-                            $content = $comment;
-                        }else{
-                            $post = $this->postManager->getPost($likeID);
-                            $content = $post;
-                        }
-
+                    foreach ($notificationsIDs as $notificationID) {
                         // Process each post ID here
+                        $notification = $this->getNotification($notificationID);
 
                         if ($numIterations++ < $start) {
                             continue;
@@ -67,10 +64,8 @@
                             $resultsCount++;
                         }
 
-                        $html .= $content->getHTML(false, $identifier);
+                        $html .= $notification->getHTML();
                     }
-
-
                 }
             }
 
@@ -80,17 +75,16 @@
                     <<<HTML
                             <input type='hidden' class='nextPage' value="$value">
                             <input type='hidden' class='noMorePosts' value='false'>
-                        HTML;
+                    HTML;
             }else{
                 $html .=
                     <<<HTML
                             <input type='hidden' class='noMorePosts' value="true">
                             <p class='noMorePosts_text'> No more posts to show! </p>
-                        HTML;
+                    HTML;
             }
 
             echo $html;
-
-
         }
     }
+

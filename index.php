@@ -76,8 +76,34 @@
 
 
                 likeAction(userLoggedIn);
+
 			}
 		});
+
+        // Click event handler for delete post button
+        $('.posts').on('click', '.post_header_delete_post_button', function() {
+            var postID = $(this).data('post-id');
+
+            // Confirm deletion with the user (optional)
+            if (confirm("Are you sure you want to delete this post?")) {
+                // Send AJAX request to delete the post
+                $.ajax({
+                    url: "lib/Ajax_DeleteAction.php",
+                    type: "POST",
+                    data: "action=post&userLoggedIn=" + userLoggedIn + "&id=" + postID,
+                    cache: false,
+
+                    success: function (data){
+                        console.log(data)
+                    },
+                    error: function (err){
+                        console.log(err);
+                    }
+                });
+            }
+        });
+
+
 
 		$(window).scroll(function() {
 			var height = $('.posts').height(); //Div containing posts
