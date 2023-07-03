@@ -34,6 +34,10 @@
     $profilePicture = $user->getProfilePicture();
     $userID = $user->getID();
 
+    $myProfile = $username === $userLoggedIn;
+
+    $friendRequestAlreadySend = $userManager->friendRequestAlreadySent($userID);
+
 ?>
 
 
@@ -57,8 +61,17 @@
                     </div>
                 </div>
                 <div class="profile_user_data_actions">
-                    <button id="addFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Add friend</button>
-                    <button><i class="fa-solid fa-message"></i>Send a message</button>
+                    <?php if (!$myProfile): ?>
+
+                        <?php if(!$friendRequestAlreadySend): ?>
+                            <button id="addFriendButton" class="addFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Add friend</button>
+                        <?php else: ?>
+                            <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Remove friend request</button>
+                        <?php endif; ?>
+
+                        <button class="sendMessageButton"><i class="fa-solid fa-message"></i>Send a message</button>
+                    <?php endif; ?>
+
                 </div>
             </div>
 
@@ -212,6 +225,32 @@
                 // Make an AJAX request or use any other method to load the user's liked posts/comments
                 // and append the liked content to the '.profile_content' div.
             }
+        });
+
+        // Add click event handler for the add/remove friend button
+        $('.addFriendButton').click(function() {
+            var button = $(this);
+            var isFriendRequestSent = button.hasClass('removeFriendButton');
+
+            // Update button appearance based on friend request status
+            if (isFriendRequestSent) {
+                // Friend request already sent, change button to "Add friend"
+                button.removeClass('removeFriendButton');
+                button.html('<i class="fa-solid fa-user-plus"></i>Add friend');
+            } else {
+                // Friend request not sent, change button to "Remove friend request"
+                button.addClass('removeFriendButton');
+                button.html('<i class="fa-solid fa-user-plus"></i>Remove friend request');
+            }
+        });
+
+        // Add click event handler for the send message button
+        $('.sendMessageButton').click(function() {
+            var button = $(this);
+
+            // Update button appearance
+            button.html('<i class="fa-solid fa-message"></i>Message sent');
+            button.attr('disabled', true);
         });
 
         // Infinite scrolling

@@ -686,20 +686,41 @@ main{
             flex-direction: column;
         }
 
-        .profile_user_data_actions>button{
+        .addFriendButton, .sendMessageButton{
             border: none;
             background-color: white;
-            text-align: left;
+            text-align: center;
             
             margin: 10px;
             padding: 10px;
             border-radius: 10px;
             font-size: 15px;
+            font-weight: 700;
 
             cursor: pointer;
         }
 
-        .profile_user_data_actions>button>i{
+        .addFriendButton>i, .sendMessageButton>i{
+            margin-right: 5px;
+        }
+
+        .removeFriendButton{
+            border: none;
+            background-color: #ee5253;
+            text-align: left;
+
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+            color: white;
+        }
+
+        .removeFriendButton>i {
+            color: white;
             margin-right: 5px;
         }
 
@@ -794,9 +815,20 @@ main{
             text-align: start;
         }
 
-        .notification_form{
+        .notification_message>a{
+            padding: 5px 5px;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .notification_message>a:hover{
+
+            color: var(--textColor);
+            background-color: white;
 
         }
+
 
         .notification_form>button{
             border: none;

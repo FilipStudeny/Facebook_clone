@@ -11,6 +11,10 @@
         private function getMessage(): string{
             return $this->data['content'];
         }
+
+        private function getType(): string{
+            return $this->data['type'];
+        }
         public function render(): void{
             echo $this->getHTML();
         }
@@ -18,6 +22,16 @@
         public function getHTML(): string{
 
             $message = $this->getMessage();
+
+            $isFriendRequest = $this->getType() == "friend_request";
+
+            $friendRequestButtons = $isFriendRequest ?
+                <<<HTML
+                    <form class="notification_form">
+                        <button class="accept" value="asdad">Accept</button>
+                        <button class="decline">Decline</button>
+                    </form>
+                HTML : '';
 
             return <<<HTML
                 <section class="notification">
@@ -27,11 +41,8 @@
                    <p class="notification_message">
                         $message
                    </p>
-                   <form class="notification_form">
-                        <button class="accept" value="asdad">Accept</button>
-                        <button class="decline">Decline</button>
-                   </form>
-                
+                   
+                    $friendRequestButtons
                 </section>
                 HTML;
 

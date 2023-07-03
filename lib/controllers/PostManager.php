@@ -77,6 +77,9 @@
             $user = $this->userManager->getUser($username);
             $userID = $user->getID();
 
+            $postCreator = $post->getCreatorUsername();
+
+
             $likes = explode(",", $post->getLikes());
             if (in_array($userID, $likes)) {
                 // Remove the user ID from the likes column in the post table
@@ -106,9 +109,14 @@
                 mysqli_stmt_bind_param($updateStatement, "ss", $postID, $userID);
                 mysqli_stmt_execute($updateStatement);
 
+
+                if($postCreator == $username){
+                    return;
+                }
+
                 $type = "post_like";
                 $date = date("Y-m-d H:i:s");
-                $content = "User '{$user->getUsername()}' liked your post.";
+                $content = "User <a href='/profile.php?user={$user->getUsername()}'>{$user->getUsername()}</a> liked your <a href='/post.php?id={$postID}'> post</a>.";
                 $userID = $post->getCreatorID();
 
                 // Prepare the SQL statement

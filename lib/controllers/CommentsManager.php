@@ -76,6 +76,35 @@
                 mysqli_query($this->databaseConnection, $updatePostQuery);
             }
 
+
+
+            $type = "comment";
+            $date = date("Y-m-d H:i:s");
+            $content = "User <a href='/profile.php?user={$creator->getUsername()}'>{$creator->getUsername()}</a> commented on your <a href='/post.php?id={$postID}'> post</a>. ";
+            $post = $this->postManager->getPost($postID);
+            $postCreator = $post->getCreatorID();
+
+            // Prepare the SQL statement
+            $query = "INSERT INTO notifications (type, for_user_id, content, date_of_creation, opened) 
+                VALUES (?, ?, ?, ?, '0')";
+            $statement = mysqli_prepare($this->databaseConnection, $query);
+
+            // Bind the parameters
+            mysqli_stmt_bind_param($statement, "ssss", $type, $postCreator, $content, $date);
+
+            // Execute the prepared statement
+            mysqli_stmt_execute($statement);
+
+            // Check if the insertion was successful
+            if (mysqli_stmt_affected_rows($statement) > 0) {
+                $returnedID = mysqli_insert_id($this->databaseConnection);
+
+                $userQuery = "UPDATE user SET notifications = CONCAT(notifications, '{$returnedID},') WHERE ID = ?";
+                $userStatement = mysqli_prepare($this->databaseConnection, $userQuery);
+                mysqli_stmt_bind_param($userStatement, "s", $postCreator);
+                mysqli_stmt_execute($userStatement);
+            }
+
         }
 
         public function like(string $commentID, string $username): void
@@ -114,6 +143,33 @@
                 $updateStatement = mysqli_prepare($this->databaseConnection,  $updateQuery);
                 $newCommentLike = "@" . $commentID;
                 mysqli_stmt_bind_param($updateStatement, "ss", $newCommentLike, $userID);
+
+                $type = "comment_like";
+                $date = date("Y-m-d H:i:s");
+                $content = "User <a href='/profile.php?user={$user->getUsername()}'>{$user->getUsername()}</a> liked your <a href='/post.php?id={$comment->getPostID()}'>comment</a>. ";
+                $post = $this->postManager->getPost($comment->getPostID());
+                $commentCreatorID = $comment->getCreatorID();
+
+                // Prepare the SQL statement
+                $query = "INSERT INTO notifications (type, for_user_id, content, date_of_creation, opened) 
+                VALUES (?, ?, ?, ?, '0')";
+                $statement = mysqli_prepare($this->databaseConnection, $query);
+
+                // Bind the parameters
+                mysqli_stmt_bind_param($statement, "ssss", $type, $commentCreatorID, $content, $date);
+
+                // Execute the prepared statement
+                mysqli_stmt_execute($statement);
+
+                // Check if the insertion was successful
+                if (mysqli_stmt_affected_rows($statement) > 0) {
+                    $returnedID = mysqli_insert_id($this->databaseConnection);
+
+                    $userQuery = "UPDATE user SET notifications = CONCAT(notifications, '{$returnedID},') WHERE ID = ?";
+                    $userStatement = mysqli_prepare($this->databaseConnection, $userQuery);
+                    mysqli_stmt_bind_param($userStatement, "s", $commentCreatorID);
+                    mysqli_stmt_execute($userStatement);
+                }
             }
             mysqli_stmt_execute($updateStatement);
 
