@@ -2,7 +2,7 @@
 
 const likeAction = (userLoggedIn) => {
 
-    $(".likes_count, .comment_likes_count").click(function() {
+    $(".like_button").click(function() {
         const ID = $(this).data("likable-id");
         const action = $(this).data("likable-name");
 

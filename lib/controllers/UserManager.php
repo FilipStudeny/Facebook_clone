@@ -5,10 +5,12 @@
     class UserManager{
 
         private mysqli $databaseConnection;
+
         public function __construct(mysqli $databaseConnection){
             $this->databaseConnection = $databaseConnection;
 
         }
+
 
 
         public function createNew(array $data): void
@@ -30,6 +32,7 @@
             } else {
                 echo "Error creating user: " . mysqli_error($this->databaseConnection);
             }
+
         }
 
         public function getUser(string $identifier): ?User {
@@ -40,6 +43,7 @@
             mysqli_stmt_execute($statement);
             $result = mysqli_stmt_get_result($statement);
             $userData = mysqli_fetch_array($result);
+
             return new User($userData);
         }
 
@@ -80,6 +84,7 @@
                     mysqli_stmt_execute($userStatement);
                 }
             }
+
         }
 
         public function userExists(string $email, string $password): bool
@@ -88,6 +93,7 @@
             $email = mysqli_real_escape_string($this->databaseConnection, $email);
             $query = "SELECT * FROM User WHERE email='$email' AND password='$hashedPassword'";
             $result = mysqli_query($this->databaseConnection, $query);
+
             return mysqli_num_rows($result) > 0;
         }
 
@@ -96,6 +102,7 @@
             $username = mysqli_real_escape_string($this->databaseConnection, $username);
             $query = "SELECT * FROM User WHERE username='$username'";
             $result = mysqli_query($this->databaseConnection, $query);
+
             return mysqli_num_rows($result) > 0;
         }
 
@@ -104,6 +111,7 @@
             $email = mysqli_real_escape_string($this->databaseConnection, $email);
             $query = "SELECT * FROM User WHERE email='$email'";
             $result = mysqli_query($this->databaseConnection, $query);
+
             return mysqli_num_rows($result) > 0;
         }
 

@@ -12,6 +12,7 @@
         private mysqli $databaseConnection;
         private string $loggedInUser;
         private UserManager $userManager;
+        private PostManager $postManager;
 
         public function __construct(mysqli $databaseConnection, string $loggedInUser)
         {
@@ -19,8 +20,12 @@
             $this->loggedInUser = $loggedInUser;
 
             $this->userManager = new UserManager($databaseConnection);
+            $this->postManager = new PostManager($databaseConnection, $loggedInUser);
         }
 
+        public function __destruct(){
+            mysqli_close($this->databaseConnection);
+        }
         public function getComment(string $identifier): Comment{
 
             $query = "SELECT comment.*, (LENGTH(comment.likes) - LENGTH(REPLACE(comment.likes, ',', ''))) 
@@ -30,6 +35,10 @@
             mysqli_stmt_execute($statement);
             $result = mysqli_stmt_get_result($statement);
             $data = mysqli_fetch_array($result);
+
+            mysqli_free_result($result);
+            mysqli_stmt_free_result($statement);
+
             return new Comment($data);
         }
 
@@ -65,12 +74,13 @@
                 // Update the comment count in the post table
                 $updatePostQuery = "UPDATE post SET comments = CONCAT(comments, '$returnedCommentID,') WHERE ID = $postID";
                 mysqli_query($this->databaseConnection, $updatePostQuery);
-
             }
+
         }
 
         public function like(string $commentID, string $username): void
         {
+
             // Check if the user has already liked the comment
             $comment = $this->getComment($commentID);
             $user = $this->userManager->getUser($username);
@@ -91,6 +101,7 @@
                 $updateQuery = "UPDATE user SET likes = ? WHERE ID = ?";
                 $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
                 mysqli_stmt_bind_param($updateStatement, "ss", $updatedUserLikes, $userID);
+
             } else {
                 // Add the user ID to the likes column in the comment table
                 $updateQuery = "UPDATE comment SET likes = CONCAT(likes, ?, ',') WHERE ID = ?";
@@ -105,11 +116,60 @@
                 mysqli_stmt_bind_param($updateStatement, "ss", $newCommentLike, $userID);
             }
             mysqli_stmt_execute($updateStatement);
+
+
+        }
+
+        public function delete(string $commentID): void
+        {
+            $comment = $this->getComment($commentID);
+            $commentPostID = $comment->getPostID();
+            $commentCreatorID = $comment->getCreatorID();
+
+            $user = $this->userManager->getUser($commentCreatorID);
+            $post = $this->postManager->getPost($commentPostID);
+
+            // Delete the comment from the comment table
+            $deleteCommentQuery = "DELETE FROM comment WHERE ID = ?";
+            $deleteCommentStatement = mysqli_prepare($this->databaseConnection, $deleteCommentQuery);
+            mysqli_stmt_bind_param($deleteCommentStatement, "s", $commentID);
+            mysqli_stmt_execute($deleteCommentStatement);
+
+            // Remove the comment from the post's comments column
+            $postComments = $post->getComments();
+            $updatedPostComments = str_replace($commentID . ',', '', $postComments);
+            $updatePostCommentsQuery = "UPDATE post SET comments = ? WHERE ID = ?";
+            $updatePostCommentsStatement = mysqli_prepare($this->databaseConnection, $updatePostCommentsQuery);
+            mysqli_stmt_bind_param($updatePostCommentsStatement, "ss", $updatedPostComments, $commentPostID);
+            mysqli_stmt_execute($updatePostCommentsStatement);
+
+            // Remove the comment from the user's comments column
+            $userComments = $user->getComments();
+            $updatedUserComments = str_replace($commentID . ',', '', $userComments);
+            $updatedUserComments = str_replace($commentID, '', $updatedUserComments);
+            $updateUserCommentsQuery = "UPDATE user SET comments = ? WHERE ID = ?";
+            $updateUserCommentsStatement = mysqli_prepare($this->databaseConnection, $updateUserCommentsQuery);
+            mysqli_stmt_bind_param($updateUserCommentsStatement, "ss", $updatedUserComments, $commentCreatorID);
+            mysqli_stmt_execute($updateUserCommentsStatement);
+
+            // Remove the comment from the user's likes column
+            $commentLikesPrefix = '@' . $commentID . ',';
+            $updatedUserLikes = str_replace($commentLikesPrefix, '', $user->getLikes());
+            $updateUserLikesQuery = "UPDATE user SET likes = ? WHERE ID = ?";
+            $updateUserLikesStatement = mysqli_prepare($this->databaseConnection, $updateUserLikesQuery);
+            mysqli_stmt_bind_param($updateUserLikesStatement, "ss", $updatedUserLikes, $commentCreatorID);
+            mysqli_stmt_execute($updateUserLikesStatement);
+
+            // Delete the comment's likes from other users' likes columns
+            $deleteCommentLikesQuery = "UPDATE user SET likes = REPLACE(likes, CONCAT('@', ?, ','), '') WHERE likes LIKE CONCAT('%@', ?, ',%')";
+            $deleteCommentLikesStatement = mysqli_prepare($this->databaseConnection, $deleteCommentLikesQuery);
+            mysqli_stmt_bind_param($deleteCommentLikesStatement, "ss", $commentID, $commentID);
+            mysqli_stmt_execute($deleteCommentLikesStatement);
+
         }
 
         public function getUserComments(string $page, string $identifier, int $postLimit): void
         {
-
             if($page == 1){
                 $start = 0;
             }else{
@@ -142,7 +202,7 @@
                             $resultsCount++;
                         }
 
-                        $posts .= $comment->getHTML();
+                        $posts .= $comment->getHTML($this->loggedInUser);
                     }
                 }
             }
@@ -164,12 +224,12 @@
 
             echo $posts;
 
-
         }
 
 
         public function getComments($data, string $postID, int $commentLimit): void
         {
+
             $page = (int)$data['page'];
 
             if($page == 1){
@@ -198,7 +258,7 @@
                         $resultsCount++;
                     }
 
-                    $comments .= $comment->getHTML();
+                    $comments .= $comment->getHTML($this->loggedInUser);
                 }
             }
 
@@ -218,6 +278,7 @@
             }
 
             echo $comments;
+
         }
 
     }

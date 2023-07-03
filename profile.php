@@ -161,7 +161,7 @@
             $.ajax({
                 url: "lib/Ajax_ProfileContent.php",
                 type: "POST",
-                data: "page=" + page + "&id=" + userName + "&content_type=" + content,
+                data: "page=" + page + "&id=" + userName + "&content_type=" + content + "&loggedInUser=" + userLoggedIn,
                 cache: false,
 
                 success: function(data) {

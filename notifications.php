@@ -100,3 +100,6 @@ $userLoggedIn = $_SESSION['username'];
 </script>
 
 </html>
+
+<?php
+DBConnection::close();

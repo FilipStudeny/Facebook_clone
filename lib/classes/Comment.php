@@ -43,26 +43,32 @@
         }
 
 
-
-        public function render(array $data): void{
-            echo $this->getHTML();
-        }
-
-        public function getHTML(): string
+        public function getHTML(string $loggedInUser): string
         {
             $userManager = new UserManager(DBConnection::connect());
             $creator = $userManager->getUser($this->getCreatorID());
             $creatorUsername = $creator->getUsername();
             $creatorProfilePicture = $creator->getProfilePicture();
-            $creatorLikes = $creator->getLikes();
+
+            $loggedUser = $userManager->getUser($loggedInUser);
+            $loggedUserUsername = $loggedUser->getUsername();
+            $loggedUserID = $loggedUser->getID();
 
             $body = $this->getBody();
             $dateOfCreation = Time::getTimeSinceCreation($this->getDateOfCreation());
             $likeCount = $this->getLikeCount();
             $commentID = $this->getID();
-            $commentLikes = $this->getLikes();
 
-            $liked = str_contains($this->commentData['likes'], $creator->getID()) ? 'liked' : '';
+            $liked = str_contains($this->commentData['likes'], $loggedUserID) ? 'liked' : '';
+
+            $isCreator = $creatorUsername == $loggedUserUsername ;
+
+            $deleteButton = $isCreator ? '
+                <button class="delete_button" data-comment-id="'. $commentID. '">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete comment
+                </button>' : '';
+
             return <<<HTML
                 <article class='comment'>
                     <header class="comment_header">
@@ -76,11 +82,15 @@
                                 <h3>$dateOfCreation</h3>
                             </div>
                         </a>
+                        <div>
+                            $deleteButton
+                            <button class="like_button $liked " data-likable-name="comment" data-likable-id=$commentID >
+                                   <i class="fa-solid fa-thumbs-up"></i>
+                                   <span> $likeCount</span>
+                            </button>
+                        </div>
                         
-                        <button class="comment_likes_count $liked" data-likable-name="comment" data-likable-id="$commentID">
-                             <i class="fa-solid fa-thumbs-up"></i>
-                             <span>$likeCount</span>
-                        </button>
+                        
                     </header>
                     <div class="comment_body">
                         $body

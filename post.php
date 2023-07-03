@@ -12,13 +12,12 @@
     $postID = $_REQUEST['id'];
 
     if(isset($_POST['submit_new_comment'])){
-            $post = new CommentsManager($connection, $userLoggedIn);
+      $post = new CommentsManager($connection, $userLoggedIn);
 
-            $post->create($_POST['new_comment_body'],$postID);
-            //header("Location: /post.php?id=$postID"); //Disables post resubmition by refreshing page
-        }
-
-    ?>
+      $post->create($_POST['new_comment_body'],$postID);
+      header("Location: /post.php?id=$postID"); //Disables post resubmition by refreshing page
+    }
+?>
 
 
 <body>
@@ -89,6 +88,30 @@
                 }
             });
 
+            // Click event handler for delete post button
+            $('.comments').on('click', '.delete_button', function() {
+                alert("asdasd");
+                var commendID = $(this).data('comment-id');
+
+                // Confirm deletion with the user (optional)
+                if (confirm("Are you sure you want to delete this post?")) {
+                    // Send AJAX request to delete the post
+                    $.ajax({
+                        url: "lib/Ajax_DeleteAction.php",
+                        type: "POST",
+                        data: "action=comment&userLoggedIn=" + userLoggedIn + "&id=" + commendID,
+                        cache: false,
+
+                        success: function (data){
+                            console.log(data)
+                        },
+                        error: function (err){
+                            console.log(err);
+                        }
+                    });
+                }
+            });
+
             $(window).scroll(function() {
                 var height = $('.comments').height(); //Div containing posts
                 var scroll_top = $(this).scrollTop();
@@ -122,3 +145,6 @@
         });
     </script>
 </html>
+
+<?php
+DBConnection::close();

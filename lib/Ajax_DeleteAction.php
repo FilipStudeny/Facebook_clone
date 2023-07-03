@@ -12,6 +12,11 @@
         $post->deletePost($id);
     }
 
+    if($action == "comment"){
+        $comment = new CommentsManager(DBConnection::connect(), $userLoggedIn);
+        $comment->delete($id);
+    }
+
 
 
 

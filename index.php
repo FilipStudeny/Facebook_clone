@@ -37,6 +37,8 @@
                             <i class="fa-solid fa-pen"></i>
                             Create new post
                         </button>
+
+
                     </div>
                 </form>
             </section>
@@ -81,7 +83,7 @@
 		});
 
         // Click event handler for delete post button
-        $('.posts').on('click', '.post_header_delete_post_button', function() {
+        $('.posts').on('click', '.delete_button', function() {
             var postID = $(this).data('post-id');
 
             // Confirm deletion with the user (optional)
@@ -140,3 +142,6 @@
 	</script>
 
 </html>
+
+<?php
+DBConnection::close();

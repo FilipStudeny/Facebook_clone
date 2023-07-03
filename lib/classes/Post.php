@@ -62,9 +62,13 @@
         {
             $userManager = new UserManager(DBConnection::connect());
             $creator = $userManager->getUser($this->getCreatorUsername());
-
             $creatorCreatorProfilePicture = $creator->getProfilePicture();
             $creatorCreatorUsername = $creator->getUsername();
+            $creatorID = $creator->getID();
+
+            $loggedUser = $userManager->getUser($loggedInUser);
+            $loggedUserID = $loggedUser->getID();
+
             $postTo = $this->getCreatedForWho();
             $postBody = $this->getPost();
             $postID = $this->getId();
@@ -83,14 +87,17 @@
 
             $isClickable = $isPostDetail ? "" : 'body_link';
 
-            $liked = str_contains($this->postData['likes'], $creator->getID()) ? 'likes_count liked' : 'likes_count';
+            $liked = str_contains($this->postData['likes'], $loggedUserID) ? 'liked' : '';
+
             $isCreator = $creatorCreatorUsername == $loggedInUser ;
 
             $deleteButton = $isCreator ? '
-                <button class="post_header_delete_post_button" data-post-id="'.$postID.'">
+                <button class="delete_button" data-post-id="'.$postID.'">
                     <i class="fa-solid fa-trash"></i>
                     Delete post
                 </button>' : '';
+
+
 
             return <<<HTML
                 <article class='post'>
@@ -108,9 +115,9 @@
                             </nav>
                             <p class='post_time_of_creation'>$postDate</p>
                         </div>
-                        
+
                         $deleteButton
-                      
+                     
                     </header>
                     <div class='post_body $isClickable'>
                         $postBodyHTML
@@ -118,13 +125,13 @@
                     <footer class="post_footer">
                         <div class="post_footer_data">
                             
-                             <button class="post_comments_count">
+                             <button class="comments_button">
                                 <i class="fa-solid fa-comment post_comments"></i>
                                 <span>$commentsCount</span>
                             </button>
-                            <button class='$liked' data-likable-name="post" data-likable-id="$postID">
-                                <i class="fa-solid fa-thumbs-up"></i>
-                                <span>$likeCount</span>
+                            <button class="like_button $liked " data-likable-name="post" data-likable-id=$postID >
+                               <i class="fa-solid fa-thumbs-up"></i>
+                               <span> $likeCount</span>
                             </button>
                         </div>
                     </footer>

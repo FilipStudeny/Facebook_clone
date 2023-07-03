@@ -11,15 +11,18 @@
     {
 
         private mysqli $databaseConnection;
+        private string $loggedInUser;
         private PostManager $postManager;
         private CommentsManager $commentsManager;
 
-        public function __construct(mysqli $databaseConnection)
+        public function __construct(mysqli $databaseConnection, string $loggedInUser)
         {
+            $this->loggedInUser = $loggedInUser;
             $this->databaseConnection = $databaseConnection;
             $this->postManager = new PostManager($databaseConnection, "");
             $this->commentsManager = new CommentsManager($databaseConnection, "");
         }
+
 
         public function getUserLikes(string $page, string $identifier, int $postLimit): void
         {
@@ -46,14 +49,14 @@
 
                         $isComment = str_contains($likeID, "@");
 
-                        $content = "";
-                        if($isComment){
+                        if ($isComment) {
                             $comment = $this->commentsManager->getComment(str_replace("@", "", $likeID));
-                            $content = $comment;
-                        }else{
+                            $content = $comment->getHTML($this->loggedInUser);
+                        } else {
                             $post = $this->postManager->getPost($likeID);
-                            $content = $post;
+                            $content = $post->getHTML(false, $identifier);
                         }
+
 
                         // Process each post ID here
 
@@ -67,11 +70,12 @@
                             $resultsCount++;
                         }
 
-                        $html .= $content->getHTML(false, $identifier);
+                        $html .= $content;
                     }
 
 
                 }
+
             }
 
             if($resultsCount > $postLimit){
@@ -90,7 +94,6 @@
             }
 
             echo $html;
-
 
         }
     }

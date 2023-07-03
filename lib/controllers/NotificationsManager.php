@@ -19,6 +19,8 @@
             $this->userManager = new UserManager($databaseConnection);
         }
 
+
+
         public function getNotification(string $identifier): Notification{
             $query = "SELECT * FROM notifications WHERE ID = ?;";
 
@@ -27,6 +29,7 @@
             mysqli_stmt_execute($statement);
             $result = mysqli_stmt_get_result($statement);
             $data = mysqli_fetch_array($result);
+
             return new Notification($data);
         }
 
@@ -85,6 +88,7 @@
             }
 
             echo $html;
+
         }
     }
 

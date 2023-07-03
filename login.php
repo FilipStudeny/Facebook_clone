@@ -90,3 +90,6 @@
 
 </body>
 </html>
+
+<?php
+DBConnection::close();

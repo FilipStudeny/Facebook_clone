@@ -10,15 +10,14 @@
         private mysqli $databaseConnection;
         private string $loggedInUser;
         private UserManager $userManager;
-        private CommentsManager $commentsManager;
 
         public function __construct(mysqli $databaseConnection, string $loggedInUser)
         {
             $this->databaseConnection = $databaseConnection;
             $this->loggedInUser = $loggedInUser;
             $this->userManager = new UserManager($databaseConnection);
-            $this->commentsManager = new CommentsManager($databaseConnection, $loggedInUser);
         }
+
 
         public function getPost(string $identifier): Post{
             // $query = "SELECT post.*, user.username FROM post JOIN user ON post.creator_id = user.ID WHERE post.ID = ?; ";
@@ -36,6 +35,7 @@
             mysqli_stmt_execute($statement);
             $result = mysqli_stmt_get_result($statement);
             $data = mysqli_fetch_array($result);
+
             return new Post($data);
         }
 
@@ -67,6 +67,7 @@
                 $dbUserQuery = mysqli_query($this->databaseConnection, $userQuery);
             }
             //Insert notification for post posted on user profile
+
         }
 
         public function like(string $postID, string $username): void
@@ -131,6 +132,7 @@
                     mysqli_stmt_execute($userStatement);
                 }
             }
+
         }
 
         public function deletePost(string $postID): void
@@ -189,9 +191,8 @@
             $deleteNotificationsStatement = mysqli_prepare($this->databaseConnection, $deleteNotificationsQuery);
             mysqli_stmt_bind_param($deleteNotificationsStatement, "s", $creatorID);
             mysqli_stmt_execute($deleteNotificationsStatement);
+
         }
-
-
 
         public function getUserPosts(string $page, string $identifier, int $postLimit): void
         {
@@ -277,7 +278,7 @@
                     $post = $this->getPost($postID);
                     $postCreator = $this->userManager->getUser($post->getCreatorUsername());
 
-                    if($loggedInUser->isFriendWith($postCreator->getUsername())){
+                    //if($loggedInUser->isFriendWith($postCreator->getUsername())){
 
                         if($numIterations++ < $start) { continue; }
                         if($resultsCount > $postLimit){
@@ -287,7 +288,7 @@
                         }
 
                         $posts .= $post->getHTML(false, $this->loggedInUser);
-                    }
+                    //}
                 }
             }
 
@@ -307,6 +308,6 @@
             }
 
             echo $posts;
+
         }
     }
-?>

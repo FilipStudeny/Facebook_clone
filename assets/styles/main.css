@@ -516,7 +516,7 @@ main{
                         margin-left: 20px;
                     }
 
-                    .post_header_delete_post_button{
+                    .delete_button{
                         padding: 10px;
                         color: white;
 
@@ -529,11 +529,11 @@ main{
                         font-weight: 700;
                     }
 
-                    .post_header_delete_post_button>i{
+                    .delete_button>i{
                         color: white;
                     }
 
-                    .post_header_delete_post_button:hover{
+                    .delete_button:hover{
                         background-color: #ee5253;
                     }
 
@@ -581,7 +581,7 @@ main{
                     width: auto;
                 }
 
-                   .post_comments_count, .likes_count{
+                   .comments_button, .like_button{
                        color: white;
                        font-size: 20px;
                        font-weight: 700;
@@ -598,13 +598,15 @@ main{
                        background-color: var(--textColor);
                    }
 
-                    .post_comments_count>i,.post_comments_count>span, .likes_count>i, .likes_count>span{
+                    .like_button>i , .like_button>span,
+                    .comments_button>i , .comments_button>span{
                         color: white;
                         font-size: 20px;
                         font-weight: 700;
                     }
 
-                    .post_comments_count:hover, .likes_count:hover {
+                    .like_button:hover,
+                    .comments_button:hover{
                         background-color: white;
                         color: var(--textColor);
                     }
@@ -613,9 +615,11 @@ main{
                         color: #ee5253;
                     }
 
-                    .post_comments_count:hover>i, .post_comments_count:hover>span, .likes_count:hover>i, .likes_count:hover>span{
+                    .like_button:hover>i, .like_button:hover>span,
+                    .comments_button:hover>i, .comments_button:hover>span{
                         color: var(--textColor);
                     }
+
 
 
 
