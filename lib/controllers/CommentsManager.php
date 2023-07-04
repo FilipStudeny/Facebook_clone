@@ -77,6 +77,11 @@
             }
 
 
+            $post = $this->postManager->getPost($postID);
+            $postCreator = $post->getCreatorUsername();
+            if($postCreator == $this->loggedInUser){
+                return;
+            }
 
             $type = "comment";
             $date = date("Y-m-d H:i:s");

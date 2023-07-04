@@ -10,6 +10,7 @@
         private mysqli $databaseConnection;
         private string $loggedInUser;
         private UserManager $userManager;
+        private CommentsManager $commentsManager;
 
         public function __construct(mysqli $databaseConnection, string $loggedInUser)
         {
@@ -36,8 +37,10 @@
             $result = mysqli_stmt_get_result($statement);
             $data = mysqli_fetch_array($result);
 
+
             return new Post($data);
         }
+
 
         public function createNewPost(string $postData, string $postedToUser): void
         {
@@ -69,6 +72,7 @@
             //Insert notification for post posted on user profile
 
         }
+
 
         public function like(string $postID, string $username): void
         {
@@ -147,22 +151,16 @@
         {
             $post = $this->getPost($postID);
             $creatorID = $post->getCreatorID();
-            $postComments = $post->getComments();
             $user = $this->userManager->getUser($creatorID);
+            $postComments = $post->getComments();
 
-            // Delete associated comments from comment table and user's comments column
-            $deleteCommentsQuery = "DELETE FROM comment WHERE post_id = ?";
-            $deleteCommentsStatement = mysqli_prepare($this->databaseConnection, $deleteCommentsQuery);
-            mysqli_stmt_bind_param($deleteCommentsStatement, "s", $postID);
-            mysqli_stmt_execute($deleteCommentsStatement);
-
-            // Delete associated comment likes from user's likes column
-            $commentLikesPrefix = '@' . $postID . ',';
-            $updatedUserLikes = str_replace($commentLikesPrefix, '', $user->getLikes());
-            $updateLikesQuery = "UPDATE user SET likes = ? WHERE ID = ?";
-            $updateLikesStatement = mysqli_prepare($this->databaseConnection, $updateLikesQuery);
-            mysqli_stmt_bind_param($updateLikesStatement, "ss", $updatedUserLikes, $creatorID);
-            mysqli_stmt_execute($updateLikesStatement);
+            if (!empty($postComments)) {
+                $commentsArray = explode(",", $postComments);
+                $commentsManager = new CommentsManager($this->databaseConnection, $this->loggedInUser);
+                foreach ($commentsArray as $commentID) {
+                    $commentsManager->delete($commentID);
+                }
+            }
 
             // Delete the post
             $deleteQuery = "DELETE FROM post WHERE ID = ?";
@@ -176,16 +174,6 @@
             mysqli_stmt_bind_param($deleteLikesStatement, "ss", $postID, $postID);
             mysqli_stmt_execute($deleteLikesStatement);
 
-            // Update the user's comments column
-            $user = $this->userManager->getUser($creatorID);
-            $userComments = $user->getComments();
-            $postCommentsArray = explode(",", $postComments);
-            $updatedUserCommentsString = implode(",", array_diff(explode(",", $userComments), $postCommentsArray));
-            $updateCommentsQuery = "UPDATE user SET comments = ? WHERE ID = ?";
-            $updateCommentsStatement = mysqli_prepare($this->databaseConnection, $updateCommentsQuery);
-            mysqli_stmt_bind_param($updateCommentsStatement, "ss", $updatedUserCommentsString, $creatorID);
-            mysqli_stmt_execute($updateCommentsStatement);
-
             // Remove the post ID from the user's posts column
             $userPosts = explode(",", $user->getPosts());
             $updatedUserPosts = implode(",", array_diff($userPosts, [$postID]));
@@ -193,13 +181,6 @@
             $updateStatement = mysqli_prepare($this->databaseConnection, $updateQuery);
             mysqli_stmt_bind_param($updateStatement, "ss", $updatedUserPosts, $creatorID);
             mysqli_stmt_execute($updateStatement);
-
-            // Delete associated notifications
-            $deleteNotificationsQuery = "DELETE FROM notifications WHERE type = 'post_like' AND for_user_id = ?";
-            $deleteNotificationsStatement = mysqli_prepare($this->databaseConnection, $deleteNotificationsQuery);
-            mysqli_stmt_bind_param($deleteNotificationsStatement, "s", $creatorID);
-            mysqli_stmt_execute($deleteNotificationsStatement);
-
         }
 
         public function getUserPosts(string $page, string $identifier, int $postLimit): void
