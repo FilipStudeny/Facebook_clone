@@ -60,7 +60,7 @@
 
         function getHTML(bool $isPostDetail, string $loggedInUser): string
         {
-            $userManager = new UserManager(DBConnection::connect());
+            $userManager = new UserManager(DBConnection::connect(), $loggedInUser);
             $creator = $userManager->getUser($this->getCreatorUsername());
             $creatorCreatorProfilePicture = $creator->getProfilePicture();
             $creatorCreatorUsername = $creator->getUsername();

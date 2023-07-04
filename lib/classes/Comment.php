@@ -45,7 +45,7 @@
 
         public function getHTML(string $loggedInUser): string
         {
-            $userManager = new UserManager(DBConnection::connect());
+            $userManager = new UserManager(DBConnection::connect(), $loggedInUser);
             $creator = $userManager->getUser($this->getCreatorID());
             $creatorUsername = $creator->getUsername();
             $creatorProfilePicture = $creator->getProfilePicture();

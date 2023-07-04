@@ -5,9 +5,11 @@
     class UserManager{
 
         private mysqli $databaseConnection;
+        private string $loggedUser;
 
-        public function __construct(mysqli $databaseConnection){
+        public function __construct(mysqli $databaseConnection, string $loggedUser){
             $this->databaseConnection = $databaseConnection;
+            $this->loggedUser = $loggedUser;
 
         }
 
@@ -53,6 +55,7 @@
             $newFriendID = $newFriend->getID();
 
             $user = $this->getUser($fromID);
+            $userID = $user->getID();
 
             if ($newFriend->isFriendWith($fromID)) {
                 // Users are already friends, remove the user from the friends column
@@ -83,11 +86,11 @@
                 }else{
 
                     // Prepare the SQL statement
-                    $query = "INSERT INTO notifications (type, for_user_id, content, date_of_creation, opened) VALUES (?, ?, ?, ?, '0')";
+                    $query = "INSERT INTO notifications (type, creator ,for_user_id, content, date_of_creation, opened) VALUES (?, ?, ?, ?, ?, '0')";
                     $statement = mysqli_prepare($this->databaseConnection, $query);
 
                     // Bind the parameters
-                    mysqli_stmt_bind_param($statement, "ssss", $type, $newFriendID, $content, $date);
+                    mysqli_stmt_bind_param($statement, "sssss", $type, $userID ,$newFriendID, $content, $date);
                     // Execute the prepared statement
                     mysqli_stmt_execute($statement);
 
@@ -104,6 +107,46 @@
             }
         }
 
+
+        public function getFriendRequest(string $friendRequestID): array
+        {
+            $query = "SELECT * FROM notifications WHERE ID = ?";
+            $statement = mysqli_prepare($this->databaseConnection, $query);
+            mysqli_stmt_bind_param($statement, "s", $friendRequestID);
+            mysqli_stmt_execute($statement);
+            $result = mysqli_stmt_get_result($statement);
+            $data = mysqli_fetch_assoc($result);
+            mysqli_free_result($result);
+            mysqli_stmt_close($statement);
+
+            return $data;
+        }
+        public function acceptFriendRequest(string $friendRequestID)
+        {
+            // Get the friend request from the notifications table
+            $friendRequest = $this->getFriendRequest($friendRequestID);
+            $user = $friendRequest['for_user_id'];
+            $newFriend = $friendRequest['creator'];
+
+
+            // Update the friends column for the current user
+            $updateCurrentUserQuery = "UPDATE user SET friends = ? WHERE ID = ?";
+            $updateCurrentUserStatement = mysqli_prepare($this->databaseConnection, $updateCurrentUserQuery);
+            mysqli_stmt_bind_param($updateCurrentUserStatement, "ss", $newFriend, $user);
+            mysqli_stmt_execute($updateCurrentUserStatement);
+
+            // Remove the friend request notification from the notifications table
+            $deleteFriendRequestQuery = "DELETE FROM notifications WHERE ID = ?";
+            $deleteFriendRequestStatement = mysqli_prepare($this->databaseConnection, $deleteFriendRequestQuery);
+            mysqli_stmt_bind_param($deleteFriendRequestStatement, "s", $friendRequestID);
+            mysqli_stmt_execute($deleteFriendRequestStatement);
+
+            // Update the notifications column in the user table
+            $updateUserNotificationsQuery = "UPDATE user SET notifications = REPLACE(notifications, ?, '') WHERE ID = ?";
+            $updateUserNotificationsStatement = mysqli_prepare($this->databaseConnection, $updateUserNotificationsQuery);
+            mysqli_stmt_bind_param($updateUserNotificationsStatement, "ss", $friendRequestID, $user);
+            mysqli_stmt_execute($updateUserNotificationsStatement);
+        }
 
         public function friendRequestAlreadySent(string $userID)
         {

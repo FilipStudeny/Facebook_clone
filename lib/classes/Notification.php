@@ -15,6 +15,10 @@
         private function getType(): string{
             return $this->data['type'];
         }
+
+        private function getID(): string{
+            return $this->data['ID'];
+        }
         public function render(): void{
             echo $this->getHTML();
         }
@@ -22,15 +26,15 @@
         public function getHTML(): string{
 
             $message = $this->getMessage();
-
+            $ID = $this->getID();
             $isFriendRequest = $this->getType() == "friend_request";
 
             $friendRequestButtons = $isFriendRequest ?
                 <<<HTML
-                    <form class="notification_form">
-                        <button class="accept" value="asdad">Accept</button>
-                        <button class="decline">Decline</button>
-                    </form>
+                    <div class="notification_form">
+                        <button class="accept" data-notification-id="$ID">Accept</button>
+                        <button class="decline" data-notification-id="$ID" >Decline</button>
+                    </div>
                 HTML : '';
 
             return <<<HTML

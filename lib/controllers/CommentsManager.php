@@ -19,7 +19,7 @@
             $this->databaseConnection = $databaseConnection;
             $this->loggedInUser = $loggedInUser;
 
-            $this->userManager = new UserManager($databaseConnection);
+            $this->userManager = new UserManager($databaseConnection, $loggedInUser);
             $this->postManager = new PostManager($databaseConnection, $loggedInUser);
         }
 
@@ -156,12 +156,12 @@
                 $commentCreatorID = $comment->getCreatorID();
 
                 // Prepare the SQL statement
-                $query = "INSERT INTO notifications (type, for_user_id, content, date_of_creation, opened) 
-                VALUES (?, ?, ?, ?, '0')";
+                $query = "INSERT INTO notifications (type, creator, for_user_id, content, date_of_creation, opened) 
+                VALUES (?, ?, ?, ?, ?, '0')";
                 $statement = mysqli_prepare($this->databaseConnection, $query);
 
                 // Bind the parameters
-                mysqli_stmt_bind_param($statement, "ssss", $type, $commentCreatorID, $content, $date);
+                mysqli_stmt_bind_param($statement, "sssss", $type, $userID ,$commentCreatorID, $content, $date);
 
                 // Execute the prepared statement
                 mysqli_stmt_execute($statement);

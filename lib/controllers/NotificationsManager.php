@@ -16,7 +16,7 @@
         {
             $this->databaseConnection = $databaseConnection;
             $this->loggedInUser = $loggedInUser;
-            $this->userManager = new UserManager($databaseConnection);
+            $this->userManager = new UserManager($databaseConnection, $loggedInUser);
         }
 
 

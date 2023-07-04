@@ -6,10 +6,14 @@
     $id = $_REQUEST['id'];
     $action = $_REQUEST['action'];
 
+    $userManager = new UserManager(DBConnection::connect(), $userLoggedIn);
 
     if($action == "friend"){
-        $userManager = new UserManager(DBConnection::connect());
         $userManager->sendFriendRequest($userLoggedIn, $id);
+    }
+
+    if ($action == "accept"){
+        $userManager->acceptFriendRequest($id);
     }
 
 

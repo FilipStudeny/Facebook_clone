@@ -25,7 +25,7 @@
 
 
     $useridentifier = $_GET['user'];
-    $userManager = new UserManager($connection);
+    $userManager = new UserManager($connection, $userLoggedIn);
     $user = $userManager->getUser($useridentifier);
 
     $username = $user->getUsername();

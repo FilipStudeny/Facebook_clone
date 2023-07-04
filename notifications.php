@@ -66,6 +66,32 @@ $userLoggedIn = $_SESSION['username'];
             }
         });
 
+        // Click event handler for delete post button
+        $('.notifications').on('click', '.accept', function() {
+            const notificationID = $(this).data('notification-id');
+            alert(notificationID);
+
+            $.ajax({
+                url: "lib/Ajax_FriendRequest.php",
+                type: "POST",
+                data: "&id=" + notificationID + "&action=accept" + "&userLoggedIn=" + userLoggedIn,
+
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors if the request fails
+                    console.error(error);
+                }
+            });
+        });
+
+        $('.notifications').on('click', '.decline', function() {
+            const notificationID = $(this).data('notification-id');
+
+
+        });
+
         $(window).scroll(function() {
             var height = $('.notifications').height(); //Div containing posts
             var scroll_top = $(this).scrollTop();
