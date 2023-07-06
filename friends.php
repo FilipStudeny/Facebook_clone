@@ -1,17 +1,19 @@
-
 <?php
-require_once "./components/header.php";
-require_once "./lib/config/DBconnection.php";
-require_once "./lib/controllers/PostManager.php";
-require_once "./lib/controllers/UserManager.php";
-
-require_once "./lib/classes/FormError.php";
-require_once "./lib/classes/User.php";
-require_once "./lib/classes/Notification.php";
+    require_once "./components/header.php";
+    require_once "./lib/config/DBconnection.php";
+    require_once "./lib/controllers/PostManager.php";
+    require_once "./lib/controllers/UserManager.php";
 
 
-$connection = DBConnection::connect();
-$userLoggedIn = $_SESSION['username'];
+
+    $connection = DBConnection::connect();
+    $userLoggedIn = $_SESSION['username'];
+
+    if (!isset($userLoggedIn)) {
+        header("Location: login.php");
+        exit();
+    }
+
 
 ?>
 
@@ -22,21 +24,22 @@ $userLoggedIn = $_SESSION['username'];
 
 <main>
 
-
     <section class="profile_user_content">
 
-        <section class="notifications">
+
+        <section class="friends">
 
 
             <div id="loading" class="loading_icon">
                 <h2>Loading ...</h2>
             </div>
 
-
         </section>
 
     </section>
+
 </main>
+
 
 </body>
 <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity='sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=' crossorigin='anonymous'></script>
@@ -48,27 +51,30 @@ $userLoggedIn = $_SESSION['username'];
 
         //Original ajax request for loading first posts
         $.ajax({
-            url: "lib/Ajax_Notifications.php",
+            url: "lib/Ajax_Friends.php",
             type: "POST",
             data: "page=1&userLoggedIn=" + userLoggedIn,
             cache:false,
 
             success: function(data) {
                 $('#loading').hide();
-                $('.notifications').html(data);
+                $('.friends').html(data);
 
             }
         });
 
         // Click event handler for delete post button
-        $('.notifications').on('click', '.accept', function() {
-            const notificationID = $(this).data('notification-id');
-            alert(notificationID);
+        $('.friends').on('click', '.removeFriendButton', function() {
+            const ID = $(this).data("user-id");
+            const action = $(this).data("user-action");
+
+            alert(ID)
+            alert(action)
 
             $.ajax({
                 url: "lib/Ajax_FriendRequest.php",
                 type: "POST",
-                data: "&id=" + notificationID + "&action=accept" + "&userLoggedIn=" + userLoggedIn,
+                data: "&id=" + ID + "&action=" + action + "&userLoggedIn=" + userLoggedIn,
 
                 success: function(data) {
                     console.log(data);
@@ -78,34 +84,30 @@ $userLoggedIn = $_SESSION['username'];
                     console.error(error);
                 }
             });
-        });
-
-        $('.notifications').on('click', '.decline', function() {
-            const notificationID = $(this).data('notification-id');
-
 
         });
+
 
         $(window).scroll(function() {
-            var height = $('.notifications').height(); //Div containing posts
+            var height = $('.friends').height(); //Div containing posts
             var scroll_top = $(this).scrollTop();
-            var page = $('.notifications').find('.nextPage').val();
-            var noMorePosts = $('.notifications').find('.noMorePosts').val();
+            var page = $('.friends').find('.nextPage').val();
+            var noMorePosts = $('.friends').find('.noMorePosts').val();
 
             if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts === 'false'){
                 $('#loading').show();
                 var ajaxReq = $.ajax({
-                    url: "lib/Ajax_Notifications.php",
+                    url: "lib/Ajax_Friends.php",
                     type: "POST",
                     data: "page=" + page + "&userLoggedIn=" + userLoggedIn,
                     cache:false,
 
                     success: function(response) {
-                        $('.notifications').find('.nextPage').remove(); //Removes current .nextpage
-                        $('.notifications').find('.noMorePosts').remove(); //Removes current .nextpage
+                        $('.friends').find('.nextPage').remove(); //Removes current .nextpage
+                        $('.friends').find('.noMorePosts').remove(); //Removes current .nextpage
 
                         $('#loading').hide();
-                        $('.notifications').append(response);
+                        $('.friends').append(response);
 
 
                     }
@@ -117,9 +119,7 @@ $userLoggedIn = $_SESSION['username'];
         });
     });
 
+
 </script>
 
 </html>
-
-<?php
-DBConnection::close();

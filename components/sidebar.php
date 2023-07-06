@@ -24,6 +24,12 @@
             <i class="fa-solid fa-message"></i>
             <span>Chat | Messages</span>
         </a>
+
+        <a class="user_detail_link" href="friends.php">
+            <i class="fa-solid fa-users"></i>
+            <span>Friends</span>
+        </a>
+
         <a class="user_detail_link" href="#">
             <i class="fa-solid fa-gear"></i>
             <span>Settings</span>

@@ -1,10 +1,14 @@
 <?php
+    require_once "./components/header.php";
+
     require_once "./lib/helpers.php";
     require_once "./lib/config/DBconnection.php";
     require_once "./lib/controllers/UserManager.php";
     require_once "./lib/classes/FormError.php";
 
     $connection = DBConnection::connect();
+
+
     $errors = array();
 
     if (isset($_POST['submit_btn'])) {
@@ -16,7 +20,7 @@
             $email = sanitizeInput($_POST['log_email'], false);
             $password = $_POST['log_password'];
 
-            $userManager = new UserManager($connection);
+            $userManager = new UserManager($connection, "");
 
             $isEmail = filter_var($email, FILTER_VALIDATE_EMAIL);
             if (!$isEmail) {
@@ -49,7 +53,6 @@
 ?>
 
 
-<?php include("./components/header.php") ?>
 <body>
     <div class="form_background_box">
         <div class="form_box">

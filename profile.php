@@ -37,6 +37,7 @@
     $myProfile = $username === $userLoggedIn;
 
     $friendRequestAlreadySend = $userManager->friendRequestAlreadySent($userID);
+    $isFriend = $user->isFriendWith($userManager->getUser($userLoggedIn)->getID());
 
 ?>
 
@@ -58,15 +59,23 @@
                     <h2 class="profile_user_data_username"><?php echo $username;  ?></h2>
                     <div class="profile_user_name_container">
                         <p><?php echo $fullname;  ?></p>
+                        <?php
+                        echo $isFriend;
+                        ?>
                     </div>
                 </div>
                 <div class="profile_user_data_actions">
-                    <?php if (!$myProfile): ?>
 
-                        <?php if(!$friendRequestAlreadySend): ?>
-                            <button id="addFriendButton" class="addFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Add friend</button>
+                    <?php if (!$myProfile): ?>
+                        <?php if (!$isFriend): ?>
+                            <?php if(!$friendRequestAlreadySend): ?>
+                                <button id="addFriendButton" class="addFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Add friend</button>
+                            <?php else: ?>
+                                <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Remove friend request</button>
+                            <?php endif; ?>
                         <?php else: ?>
-                            <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Remove friend request</button>
+                            <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="remove_friend"><i class="fa-solid fa-user-plus"></i>Remove friend</button>
+
                         <?php endif; ?>
 
                         <button class="sendMessageButton"><i class="fa-solid fa-message"></i>Send a message</button>

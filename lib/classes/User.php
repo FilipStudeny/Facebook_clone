@@ -60,8 +60,27 @@
             return $this->userData['account_is_closed'];
         }
 
-        public function isFriendWith(string $username): bool {
+        public function isFriendWith(string $id): bool {
             $friends = $this->getFriends();
-            return in_array($username, $friends) || $username === $this->getUsername();
+            return in_array($id, $friends) || $id === $this->getUsername();
         }
+
+        function getHTML(): string
+        {
+            $username = $this->getUsername();
+            $userID = $this->getID();
+
+            return <<<HTML
+                <section class="user_card">
+                   <div class="user_card_profile_picture_container">
+                        <img class="user_card_profile_picture" src="./../../assets/defaults/user_icon.png">
+                   </div>
+                   <a href="/profile.php?user=$username" class="user_card_link">
+                        <span>$username</span>
+                   </a>
+                   <button class="removeFriendButton" data-user-id=$userID data-user-action="remove_friend"><i class="fa-solid fa-user-plus"></i>Remove friend</button>
+                </section>
+            HTML;
+        }
+
     }

@@ -28,12 +28,18 @@
                 <i class="fa-solid fa-gear"></i>
             </a>
 
+            <a class="header_link" href="friends.php">
+                <i class="fa-solid fa-users"></i>
+            </a>
+
             <a class="header_link" href="notifications.php">
                 <i class="fa-solid fa-bell"></i>
             </a>
             <a class="header_link" href="/loggout.php">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </a>
+
+
         <?php else: ?>
             <a class="header_link" href="/login.php">
                 <i class="fa-solid fa-right-to-bracket"></i>

@@ -12,6 +12,10 @@
         $userManager->sendFriendRequest($userLoggedIn, $id);
     }
 
+    if($action == "remove_friend"){
+        $userManager->removeFriend($id, $userLoggedIn);
+    }
+
     if ($action == "accept"){
         $userManager->acceptFriendRequest($id);
     }

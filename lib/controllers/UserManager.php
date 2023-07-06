@@ -7,13 +7,11 @@
         private mysqli $databaseConnection;
         private string $loggedUser;
 
-        public function __construct(mysqli $databaseConnection, string $loggedUser){
+        public function __construct(mysqli $databaseConnection, string $loggedUser = ""){
             $this->databaseConnection = $databaseConnection;
             $this->loggedUser = $loggedUser;
 
         }
-
-
 
         public function createNew(array $data): void
         {
@@ -36,7 +34,6 @@
             }
 
         }
-
         public function getUser(string $identifier): ?User {
 
             $query = "SELECT * FROM user WHERE email=? OR username=? OR id=?";
@@ -49,6 +46,62 @@
             return new User($userData);
         }
 
+        public function loadFriends(string $page, string $identifier, int $postLimit): void{
+
+            if($page == 1){
+                $start = 0;
+            }else{
+                $start = ((int)$page - 1) * $postLimit;
+            }
+
+            $users = "";
+            $query = "SELECT friends FROM `user` WHERE username = '$identifier' ORDER BY ID DESC";
+            $dbQuery = mysqli_query($this->databaseConnection, $query);
+            $numIterations = 0; //Number of iterations check
+            $resultsCount = 1;
+
+            if (mysqli_num_rows($dbQuery) > 0) {
+                while ($postData = mysqli_fetch_array($dbQuery)) {
+
+                    $array = array_map('trim', explode(',',  $postData['friends']));
+                    $usersIDs = array_filter($array);
+
+                    foreach ($usersIDs as $userID) {
+                        // Process each post ID here
+                        $user = $this->getUser($userID);
+
+                        if ($numIterations++ < $start) {
+                            continue;
+                        }
+
+                        if ($resultsCount > $postLimit) {
+                            break;
+                        } else {
+                            $resultsCount++;
+                        }
+
+                        $users .= $user->getHTML();
+                    }
+                }
+            }
+
+            if($resultsCount > $postLimit){
+                $value = ((int)$page + 1);
+                $users .=
+                    <<<HTML
+                            <input type='hidden' class='nextPage' value="$value">
+                            <input type='hidden' class='noMorePosts' value='false'>
+                        HTML;
+            }else{
+                $users .=
+                    <<<HTML
+                            <input type='hidden' class='noMorePosts' value="true">
+                            <p class='noMorePosts_text'> No more friends. </p>
+                        HTML;
+            }
+
+            echo $users;
+        }
         public function sendFriendRequest(string $fromID, string $toID): void
         {
             $newFriend = $this->getUser($toID);
@@ -106,8 +159,6 @@
                 }
             }
         }
-
-
         public function getFriendRequest(string $friendRequestID): array
         {
             $query = "SELECT * FROM notifications WHERE ID = ?";
@@ -121,18 +172,22 @@
 
             return $data;
         }
-        public function acceptFriendRequest(string $friendRequestID)
+        public function acceptFriendRequest(string $friendRequestID): void
         {
             // Get the friend request from the notifications table
             $friendRequest = $this->getFriendRequest($friendRequestID);
             $user = $friendRequest['for_user_id'];
             $newFriend = $friendRequest['creator'];
 
-
             // Update the friends column for the current user
             $updateCurrentUserQuery = "UPDATE user SET friends = ? WHERE ID = ?";
             $updateCurrentUserStatement = mysqli_prepare($this->databaseConnection, $updateCurrentUserQuery);
             mysqli_stmt_bind_param($updateCurrentUserStatement, "ss", $newFriend, $user);
+            mysqli_stmt_execute($updateCurrentUserStatement);
+
+            $updateCurrentUserQuery = "UPDATE user SET friends = ? WHERE ID = ?";
+            $updateCurrentUserStatement = mysqli_prepare($this->databaseConnection, $updateCurrentUserQuery);
+            mysqli_stmt_bind_param($updateCurrentUserStatement, "ss", $user, $newFriend);
             mysqli_stmt_execute($updateCurrentUserStatement);
 
             // Remove the friend request notification from the notifications table
@@ -147,7 +202,23 @@
             mysqli_stmt_bind_param($updateUserNotificationsStatement, "ss", $friendRequestID, $user);
             mysqli_stmt_execute($updateUserNotificationsStatement);
         }
+        public function removeFriend(string $friendID, string $sender): void
+        {
+            // Get the friend request from the notifications table
+            $userID = $this->getUser($sender)->getID();
 
+            // Update the friends column for the current user
+            $updateCurrentUserQuery = "UPDATE user SET friends = REPLACE(friends, ?, '') WHERE ID = ?";
+            $updateCurrentUserStatement = mysqli_prepare($this->databaseConnection, $updateCurrentUserQuery);
+            mysqli_stmt_bind_param($updateCurrentUserStatement, "ss", $userID, $friendID);
+            mysqli_stmt_execute($updateCurrentUserStatement);
+
+            // Update the friends column for the friend to be removed
+            $updateFriendQuery = "UPDATE user SET friends = REPLACE(friends, ?, '') WHERE ID = ?";
+            $updateFriendStatement = mysqli_prepare($this->databaseConnection, $updateFriendQuery);
+            mysqli_stmt_bind_param($updateFriendStatement, "ss", $friendID, $userID);
+            mysqli_stmt_execute($updateFriendStatement);
+        }
         public function friendRequestAlreadySent(string $userID)
         {
             // Check if the friend request already exists
@@ -166,9 +237,6 @@
             // Friend request does not exist
             return false;
         }
-
-
-
         public function userExists(string $email, string $password): bool
         {
             $hashedPassword = md5($password);
@@ -178,7 +246,6 @@
 
             return mysqli_num_rows($result) > 0;
         }
-
         public function usernameInUse(string $username): bool
         {
             $username = mysqli_real_escape_string($this->databaseConnection, $username);
@@ -187,7 +254,6 @@
 
             return mysqli_num_rows($result) > 0;
         }
-
         public function emailInUse(string $email): bool
         {
             $email = mysqli_real_escape_string($this->databaseConnection, $email);
@@ -196,7 +262,6 @@
 
             return mysqli_num_rows($result) > 0;
         }
-
         public function checkIfAlreadyInUse(string $email, string $username): array
         {
             $errors = [];

@@ -641,6 +641,10 @@ main{
 
         min-width: 200px;
         min-height: 200px;
+
+        background-color: white;
+        border-radius: 40px;
+        margin-right: 20px;
     }
 
         .profile_user_picture_container>img{
@@ -722,6 +726,15 @@ main{
         .removeFriendButton>i {
             color: white;
             margin-right: 5px;
+        }
+
+        .removeFriendButton:hover{
+            color: var(--textColor);
+            background-color: white;
+        }
+
+        .removeFriendButton:hover>i{
+            color: var(--textColor);
         }
 
     .profile_user_description{
@@ -855,6 +868,60 @@ main{
         .decline{
             background-color: #ee5253;
         }
+
+.user_card{
+    background-color: var(--textColor);
+    padding: 10px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    margin: 10px;
+}
+
+    .user_card_profile_picture_container{
+        width: 50px;
+        height: 50px;
+        background-color: white;
+        border-radius: 10px;
+    }
+        .user_card_profile_picture{
+            width: 100%;
+            height: 100%;
+        }
+
+    .user_card_link{
+        flex: 1;
+
+        margin-left: 10px;
+
+        padding: 5px 5px;
+        border-radius: 10px;
+        text-decoration: none;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .user_card_link>span{
+        font-size: 30px;
+        font-weight: 700;
+        color: white;
+    }
+
+        .user_card_link:hover{
+            color: var(--textColor);
+            background-color: white;
+        }
+
+        .user_card_link:hover>span{
+            color: var(--textColor);
+        }
+
+
 
 #loading{
     width: 100%;
