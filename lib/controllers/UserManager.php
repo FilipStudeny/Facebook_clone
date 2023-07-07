@@ -12,7 +12,6 @@
             $this->loggedUser = $loggedUser;
 
         }
-
         public function createNew(array $data): void
         {
             $username = $data['username'];
@@ -44,6 +43,20 @@
             $userData = mysqli_fetch_array($result);
 
             return new User($userData);
+        }
+
+        public function updateProfilePicture(string $username, string $profilePicture): void
+        {
+            $username = mysqli_real_escape_string($this->databaseConnection, $username);
+            $profilePicture = mysqli_real_escape_string($this->databaseConnection, $profilePicture);
+
+            $query = "UPDATE user SET profile_picture = '$profilePicture' WHERE username = '$username'";
+
+            if (mysqli_query($this->databaseConnection, $query)) {
+                echo "Profile picture updated successfully!";
+            } else {
+                echo "Error updating profile picture: " . mysqli_error($this->databaseConnection);
+            }
         }
 
         public function loadFriends(string $page, string $identifier, int $postLimit): void{

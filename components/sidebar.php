@@ -30,7 +30,7 @@
             <span>Friends</span>
         </a>
 
-        <a class="user_detail_link" href="#">
+        <a class="user_detail_link" href="settings.php">
             <i class="fa-solid fa-gear"></i>
             <span>Settings</span>
         </a>

@@ -69,11 +69,12 @@
         {
             $username = $this->getUsername();
             $userID = $this->getID();
+            $userProfilePicture = $this->getProfilePicture();
 
             return <<<HTML
                 <section class="user_card">
                    <div class="user_card_profile_picture_container">
-                        <img class="user_card_profile_picture" src="./../../assets/defaults/user_icon.png">
+                        <img class="user_card_profile_picture" src=$userProfilePicture>
                    </div>
                    <a href="/profile.php?user=$username" class="user_card_link">
                         <span>$username</span>

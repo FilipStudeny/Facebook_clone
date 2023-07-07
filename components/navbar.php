@@ -24,7 +24,7 @@
             <a class="header_link" href="profile.php?user=<?php echo $userLoggedIn; ?>">
                 <i class="fa-solid fa-address-card"></i>
             </a>
-            <a class="header_link" href="#">
+            <a class="header_link" href="settings.php">
                 <i class="fa-solid fa-gear"></i>
             </a>
 
