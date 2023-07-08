@@ -78,7 +78,7 @@
 
                         <?php endif; ?>
 
-                        <button class="sendMessageButton"><i class="fa-solid fa-message"></i>Send a message</button>
+                        <a href="chat.php?with_user=<?php echo $username ?>" class="sendMessageButton"><i class="fa-solid fa-message"></i>Send a message</a>
                     <?php endif; ?>
 
                 </div>

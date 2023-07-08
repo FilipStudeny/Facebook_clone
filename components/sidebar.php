@@ -20,7 +20,7 @@
             <i class="fa-solid fa-bell"></i>
             <span>Notifications</span>
         </a>
-        <a class="user_detail_link" href="#">
+        <a class="user_detail_link" href="messages.php">
             <i class="fa-solid fa-message"></i>
             <span>Chat | Messages</span>
         </a>
