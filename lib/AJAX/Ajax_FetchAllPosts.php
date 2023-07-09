@@ -1,8 +1,8 @@
 <?php
 
 
-    require_once "config/DBconnection.php";
-    require_once "controllers/PostManager.php";
+    require_once "../config/DBconnection.php";
+    require_once "../controllers/PostManager.php";
 
 
     $postLimit = 10;

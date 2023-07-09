@@ -36,18 +36,14 @@
                 ?>
 
             </section>
-            <section class="form_container">
+            <section class="section">
                 <form class="form" action="post.php?id=<?php echo $postID ?>" method="POST">
                     <textarea id="NewPostTextArea" name="new_comment_body" placeholder="Say something..."></textarea>
-                    <div class="form_buttons">
-                        <button class="form_btn" type="submit" name="submit_new_comment">
-                            <i class="fa-solid fa-pen"></i>
-                            Post comment
-                        </button>
-                    </div>
-                    
+                    <button class="form_btn" type="submit" name="submit_new_comment">
+                        <i class="fa-solid fa-pen"></i>
+                        Post comment
+                    </button>
                 </form>
-
             </section>
 
             <section class="comments">
@@ -75,7 +71,7 @@
 
             //Original ajax request for loading first posts
             $.ajax({
-                url: "lib/Ajax_Comments.php",
+                url: "lib/AJAX/Ajax_Comments.php",
                 type: "POST",
                 data: "page=1&userLoggedIn=" + userLoggedIn + "&postId=" + postID,
                 cache:false,
@@ -97,7 +93,7 @@
                 if (confirm("Are you sure you want to delete this post?")) {
                     // Send AJAX request to delete the post
                     $.ajax({
-                        url: "lib/Ajax_DeleteAction.php",
+                        url: "lib/AJAX/Ajax_DeleteAction.php",
                         type: "POST",
                         data: "action=comment&userLoggedIn=" + userLoggedIn + "&id=" + commendID,
                         cache: false,
@@ -121,7 +117,7 @@
                 if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts === 'false'){
                     $('#loading').show();
                     var ajaxReq = $.ajax({
-                        url:  "lib/Ajax_Comments.php",
+                        url:  "lib/AJAX/Ajax_Comments.php",
                         type: "POST",
                         data: "page=" + page + "&userLoggedIn=" + userLoggedIn + "&postId=" + postID,
                         cache:false,

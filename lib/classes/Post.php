@@ -64,12 +64,10 @@
             $creator = $userManager->getUser($this->getCreatorUsername());
             $creatorCreatorProfilePicture = $creator->getProfilePicture();
             $creatorCreatorUsername = $creator->getUsername();
-            $creatorID = $creator->getID();
 
             $loggedUser = $userManager->getUser($loggedInUser);
             $loggedUserID = $loggedUser->getID();
 
-            $postTo = $this->getCreatedForWho();
             $postBody = $this->getPost();
             $postID = $this->getId();
             $postDate = Time::getTimeSinceCreation($this->getDateOfCreation());
@@ -78,12 +76,11 @@
             $commentsCount = $this->getCommentsCount();
             $likeCount = $this->getLikesCount();
 
-            $postBodyHTML = $isPostDetail ? $postBody :
+            $postBodyHTML = $isPostDetail ? "<p class='post_detail'>$postBody</p>" :
                 "<a class='post_detail_link' href='post.php?id=$postID'>
                     $postBody
                 </a>";
 
-            $forUser = ($postTo === "none") ? "" : "<a href='$postTo'><span>to</span></a>";
 
             $isClickable = $isPostDetail ? "" : 'body_link';
 
@@ -102,29 +99,25 @@
             return <<<HTML
                 <article class='post'>
                     <header class='post_header'>
-                        <div class='post_profile_pic_container'>
-                            <a href="profile.php?user=$creatorCreatorUsername">
+                        <a class="post_profile_link" href="profile.php?user=$creatorCreatorUsername">
+                            <div class="post_header_profile_picture" >
                                 <img class='post_profile_picture' src='$creatorCreatorProfilePicture' width='50' height='50' alt="User profile picture">
-                            </a>
-                        </div>
-                        <div class='post_header_user_info'>
-                            <nav class='post_header_user_links'>
-                                <a href='profile.php?user=$creatorCreatorUsername'>$creatorCreatorUsername</a>
-                                $forUser
-               
-                            </nav>
-                            <p class='post_time_of_creation'>$postDate</p>
-                        </div>
+                            </div>
+                            <div class='post_header_user_info'>
+                                <p>$creatorCreatorUsername</p>                   
+                                <p class='post_time_of_creation'>$postDate</p>
+                            </div>
+                        </a>
+                        
 
                         $deleteButton
-                     
                     </header>
-                    <div class='post_body $isClickable'>
+                    <div class="post_body">
                         $postBodyHTML
-                    </div>
+                     </div>
+                     
                     <footer class="post_footer">
-                        <div class="post_footer_data">
-                            
+                        <div class="post_footer_buttons">
                              <button class="comments_button">
                                 <i class="fa-solid fa-comment post_comments"></i>
                                 <span>$commentsCount</span>

@@ -65,6 +65,7 @@
                 ]);
 
                 header("Location: login.php");
+                exit();
             } else {
                 $errors = array_merge($errors, $validationErrors);
             }
@@ -86,60 +87,61 @@
 <?php include("./components/header.php") ?>
 
 <body>
-    <div class="form_background_box">
-        <div class="form_box">
-            <h2>Social App</h2>
-            <form class="auth_form" action="register.php" method="POST">
-                <div class="form_input_box">
-                    <label>Username:</label>
-                    <input type="text" name="reg_username" placeholder="username">
-                </div>
-                <div class="form_input_box">
-                    <label>Email:</label>
-                    <input type="text" name="reg_email" placeholder="email@email.com">
-                </div>
-                <div class="form_input_box">
-                    <label>Firstname:</label>
-                    <input type="text" name="reg_firstname" placeholder="Your name">
-                </div>
-                <div class="form_input_box">
-                    <label>Surname:</label>
-                    <input type="text" name="reg_surname" placeholder="Your surname">
-                </div>
+    <main class="width_70">
+        <section class="section">
+            <div class="form_container">
+                <h2>Social App</h2>
+                <form class="form" action="register.php" method="POST">
+                    <div class="form_input_box">
+                        <label>Username:</label>
+                        <input type="text" name="reg_username" placeholder="username">
+                    </div>
+                    <div class="form_input_box">
+                        <label>Email:</label>
+                        <input type="text" name="reg_email" placeholder="email@email.com">
+                    </div>
+                    <div class="form_input_box">
+                        <label>Firstname:</label>
+                        <input type="text" name="reg_firstname" placeholder="Your name">
+                    </div>
+                    <div class="form_input_box">
+                        <label>Surname:</label>
+                        <input type="text" name="reg_surname" placeholder="Your surname">
+                    </div>
 
-                <div class="form_input_box">
-                    <label>Password:</label>
-                    <input type="password" name="reg_password" placeholder="password">
-                </div>
-                <div class="form_input_box">
-                    <label>Confirm password:</label>
-                    <input type="password" name="reg_confirm_password" placeholder="password">
-                </div>
-                <button type="submit" name="submit_btn">Create new account</button>
-            </form>
+                    <div class="form_input_box">
+                        <label>Password:</label>
+                        <input type="password" name="reg_password" placeholder="password">
+                    </div>
+                    <div class="form_input_box">
+                        <label>Confirm password:</label>
+                        <input type="password" name="reg_confirm_password" placeholder="password">
+                    </div>
+                    <button class="form_submit" type="submit" name="submit_btn">Create new account</button>
+                </form>
 
-            <div class="form_box_links">
-                <a class="form_box_link" href="/login.php">
-                    <i class="fa-solid fa-user"></i>
-                    Sign into your account
-                </a>
+                <div class="form_box_links">
+                    <a class="form_box_link" href="/login.php">
+                        <i class="fa-solid fa-user"></i>
+                        Sign into your account
+                    </a>
+                </div>
             </div>
+
 
             <?php if(!empty($errors)): ?>
                 <div class="form_errors_container">
                     <ul class="form_errors_list">
                         <?php
-                            foreach($errors as $error){
-                                echo displayFormError($error->getMessage());
-                            }
+                        foreach($errors as $error){
+                            echo displayFormError($error->getMessage());
+                        }
                         ?>
                     </ul>
                 </div>
             <?php endif ?>
-
-        </div>
-    </div>
-
+        </section>
+    </main>
 </body>
 
 </html>

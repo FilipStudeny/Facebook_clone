@@ -25,35 +25,25 @@
 
 
     <body>
-        <?php include_once ("./components/navbar.php");?>
         <?php include("./components/sidebar.php"); ?>
 
         <main>
-            <section class="form_container">
+            <section class="section">
                 <form class="form" action="index.php" method="POST">
                     <textarea id="NewPostTextArea" name="new_post_body" placeholder="Say something..."></textarea>
-                    <div class="form_buttons">
-                        <button class="form_btn" type="submit" name="submit_new_post">
-                            <i class="fa-solid fa-pen"></i>
-                            Create new post
-                        </button>
-
-
-                    </div>
+                    <button class="form_btn" type="submit" name="submit_new_post">
+                        <i class="fa-solid fa-pen"></i>
+                        Create new post
+                    </button>
                 </form>
             </section>
 
             <section class="posts">
-
+                <div id="loading" class="loading_icon">
+                    <h2>Loading ...</h2>
+                </div>
             </section>
-            
-            <div id="loading" class="loading_icon">
-                <h2>Loading ...</h2>
-            </div>
-
         </main>
-
-        
     </body>
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity='sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=', crossorigin='anonymous'></script>
     <script src="./assets/scripts/index.js"></script>
@@ -67,7 +57,7 @@
 
 		//Original ajax request for loading first posts 
 		$.ajax({
-			url: "lib/AjaxCalls.php",
+			url: "lib/AJAX/Ajax_FetchAllPosts.php",
 			type: "POST",
 			data: "page=1&userLoggedIn=" + userLoggedIn,
 			cache:false,
@@ -90,7 +80,7 @@
             if (confirm("Are you sure you want to delete this post?")) {
                 // Send AJAX request to delete the post
                 $.ajax({
-                    url: "lib/Ajax_DeleteAction.php",
+                    url: "lib/AJAX/Ajax_FetchAllPosts.php",
                     type: "POST",
                     data: "action=post&userLoggedIn=" + userLoggedIn + "&id=" + postID,
                     cache: false,
@@ -116,7 +106,7 @@
             if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts === 'false'){
             	$('#loading').show();
 				var ajaxReq = $.ajax({
-					url: "lib/AjaxCalls.php",
+					url: "lib/AJAX/Ajax_FetchAllPosts.php",
 					type: "POST",
 					data: "page=" + page + "&userLoggedIn=" + userLoggedIn,
 					cache:false,

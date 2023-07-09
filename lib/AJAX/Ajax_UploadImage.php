@@ -1,6 +1,6 @@
 <?php
-    require_once "config/DBconnection.php";
-    require_once "controllers/UserManager.php";
+    require_once "../config/DBconnection.php";
+    require_once "../controllers/UserManager.php";
 
     // Check if the request contains the image data
     if(isset($_POST['image'])) {

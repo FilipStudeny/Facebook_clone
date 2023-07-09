@@ -49,7 +49,7 @@
             </section>
         </section>
 
-        <section class="settings_container">
+        <section class="section background">
             <button class="change_profile_picture_button">
                 <i class="fa-sharp fa-solid fa-image"></i>
                 <div class="change_profile_picture_button_icon_background"></div>
@@ -59,38 +59,38 @@
 
 
         </section>
-        <section class="settings_container">
-            <form class="settings_form" action="#" method="#">
-                <div class="settings_form_input_box">
+        <section class="section section_margin">
+            <form class="form" action="#" method="#">
+                <div class="form_input_box">
                     <label for="fUsername">Username:</label>
                     <input id="fUsername" type="text" value=<?php echo $username ?>>
                 </div>
-                <div class="settings_form_input_box">
+                <div class="form_input_box">
                     <label for="fEmail">Email:</label>
                     <input id="fEmail" type="text" value=<?php echo $email ?>>
                 </div>
-                <div class="settings_form_input_box">
+                <div class="form_input_box">
                     <label for="fEmail">New password:</label>
                     <input id="fEmail" type="text" placeholder="Enter new password">
                 </div>
-                <div class="settings_form_input_box">
+                <div class="form_input_box">
                     <label for="fEmail">New password again:</label>
                     <input id="fEmail" type="text" placeholder="Enter new password">
                 </div>
-                <div class="settings_form_input_box">
+                <div class="form_input_box">
                     <label for="fFirstname">Firstname:</label>
                     <input id="fFirstname" type="text" value=<?php echo $firstname ?>>
                 </div>
-                <div class="settings_form_input_box">
+                <div class="form_input_box">
                     <label for="fSurname">Surname:</label>
                     <input id="fSurname" type="text" value=<?php echo $surname ?>>
                 </div>
-                <button type="submit" class="settings_form_button">Update profile data</button>
+                <button class="form_submit" type="submit">Update profile data</button>
             </form>
 
 
         </section>
-        <section class="settings_container">
+        <section class="section background section_margin">
             <div class="setting_options_container">
                 <h2>Delete profile ?</h2>
                 <button><i class="fa-solid fa-trash"></i>Delete my profile</button>
@@ -179,7 +179,7 @@
 
                 // Send the cropped image data to the server using AJAX
                 $.ajax({
-                    url: 'lib/Ajax_UploadImage.php',
+                    url: 'lib/AJAX/Ajax_UploadImage.php',
                     type: 'POST',
                     data: formData,
                     contentType: false,

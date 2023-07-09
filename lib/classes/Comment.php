@@ -94,7 +94,6 @@
                     </header>
                     <div class="comment_body">
                         $body
-                        
                     </div>
 
                 </article>

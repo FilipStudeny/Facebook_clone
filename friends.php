@@ -51,7 +51,7 @@
 
         //Original ajax request for loading first posts
         $.ajax({
-            url: "lib/Ajax_Friends.php",
+            url: "lib/AJAX/Ajax_Friends.php",
             type: "POST",
             data: "page=1&userLoggedIn=" + userLoggedIn,
             cache:false,
@@ -72,7 +72,7 @@
             alert(action)
 
             $.ajax({
-                url: "lib/Ajax_FriendRequest.php",
+                url: "lib/AJAX/Ajax_FriendRequest.php",
                 type: "POST",
                 data: "&id=" + ID + "&action=" + action + "&userLoggedIn=" + userLoggedIn,
 
@@ -97,7 +97,7 @@
             if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts === 'false'){
                 $('#loading').show();
                 var ajaxReq = $.ajax({
-                    url: "lib/Ajax_Friends.php",
+                    url: "lib/AJAX/Ajax_Friends.php",
                     type: "POST",
                     data: "page=" + page + "&userLoggedIn=" + userLoggedIn,
                     cache:false,

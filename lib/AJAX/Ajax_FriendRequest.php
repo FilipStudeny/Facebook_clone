@@ -1,6 +1,6 @@
 <?php
-    require_once "config/DBconnection.php";
-    require_once "controllers/UserManager.php";
+    require_once "../config/DBconnection.php";
+    require_once "../controllers/UserManager.php";
 
     $userLoggedIn = $_REQUEST['userLoggedIn'];
     $id = $_REQUEST['id'];

@@ -29,7 +29,7 @@ const likeAction = (userLoggedIn) => {
 
 function likeContent(postId, userLoggedIn, action) {
     $.ajax({
-        url: "/lib/Ajax_LikeAction.php",
+        url: "/lib/AJAX/Ajax_LikeAction.php",
         type: "POST",
         data: "id=" + postId + "&userLoggedIn=" + userLoggedIn + "&action=" + action,
         cache: false,

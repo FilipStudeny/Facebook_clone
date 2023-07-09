@@ -43,73 +43,52 @@
 
 
 <body>
-<?php include_once ("./components/navbar.php");?>
 <?php include("./components/sidebar.php"); ?>
+    <main>
 
-<main>
+        <section class="section_profile">
+            <div class="profile_picture_container">
+                <img src="<?php echo $profilePicture?>" alt="Profile picture" width="100" height="100" >
+            </div>
 
-    <section class="profile_user">
-        <div class="profile_user_picture_container">
-            <img src="<?php echo $profilePicture?>" alt="Profile picture" width="100" height="100" >
-        </div>
+            <div class="profile_user_data">
+                <h2 class="profile_username"><?php echo $username;  ?></h2>
+                <p class="profile_name"><?php echo $fullname;  ?></p>
+            </div>
 
-        <div class="profile_user_data">
-            <div class="profile_user_data_header">
-                <div>
-                    <h2 class="profile_user_data_username"><?php echo $username;  ?></h2>
-                    <div class="profile_user_name_container">
-                        <p><?php echo $fullname;  ?></p>
-                        <?php
-                        echo $isFriend;
-                        ?>
-                    </div>
-                </div>
-                <div class="profile_user_data_actions">
-
-                    <?php if (!$myProfile): ?>
-                        <?php if (!$isFriend): ?>
-                            <?php if(!$friendRequestAlreadySend): ?>
-                                <button id="addFriendButton" class="addFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Add friend</button>
-                            <?php else: ?>
-                                <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Remove friend request</button>
-                            <?php endif; ?>
+            <div class="profile_user_buttons">
+                <?php if (!$myProfile): ?>
+                    <?php if (!$isFriend): ?>
+                        <?php if(!$friendRequestAlreadySend): ?>
+                            <button id="addFriendButton" class="addFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Add friend</button>
                         <?php else: ?>
-                            <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="remove_friend"><i class="fa-solid fa-user-plus"></i>Remove friend</button>
-
+                            <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="friend"><i class="fa-solid fa-user-plus"></i>Remove friend request</button>
                         <?php endif; ?>
+                    <?php else: ?>
+                        <button id="addFriendButton" class="removeFriendButton" data-user-id="<?php echo $userID; ?>" data-user-action="remove_friend"><i class="fa-solid fa-user-plus"></i>Remove friend</button>
 
-                        <a href="chat.php?with_user=<?php echo $username ?>" class="sendMessageButton"><i class="fa-solid fa-message"></i>Send a message</a>
                     <?php endif; ?>
 
-                </div>
+                    <a href="chat.php?with_user=<?php echo $username ?>" class="sendMessageButton"><i class="fa-solid fa-message"></i>Send a message</a>
+                <?php endif; ?>
             </div>
-
-            <section class="profile_user_description">
-                asdawd asdn awjdna jsnd oawnd jsadj najwnd jsdnajsnd jandd
-            </section>
-
-        </div>
-
-    </section>
-    <section class="profile_user_content">
-        <div class="profile_content_switch">
-            <button class="profile_content_button selected" value="posts">Posts</button>
-            <button class="profile_content_button" value="comments">Comments</button>
-            <button class="profile_content_button" value="likes">Likes</button>
-        </div>
-
-        <section class="profile_content">
-            <div id="loading" class="loading_icon">
-                <h2>Loading ...</h2>
-            </div>
-
         </section>
 
-    </section>
+        <section class="section">
+            <div class="profile_content_switch">
+                <button class="profile_content_button selected" value="posts">Posts</button>
+                <button class="profile_content_button" value="comments">Comments</button>
+                <button class="profile_content_button" value="likes">Likes</button>
+            </div>
 
+            <section class="profile_content">
+                <div id="loading" class="loading_icon">
+                    <h2>Loading ...</h2>
+                </div>
+            </section>
+        </section>
 
-
-</main>
+    </main>
 
 
 </body>
@@ -132,7 +111,7 @@
 
 
             $.ajax({
-                url: "lib/Ajax_FriendRequest.php",
+                url: "lib/AJAX/Ajax_FriendRequest.php",
                 type: "POST",
                 data: "&id=" + ID + "&action=" + action + "&userLoggedIn=" + userLoggedIn,
 
@@ -154,7 +133,7 @@
             if (confirm("Are you sure you want to delete this post?")) {
                 // Send AJAX request to delete the post
                 $.ajax({
-                    url: "lib/Ajax_DeleteAction.php",
+                    url: "lib/AJAX/Ajax_DeleteAction.php",
                     type: "POST",
                     data: "action=post&userLoggedIn=" + userLoggedIn + "&id=" + postID,
                     cache: false,
@@ -178,7 +157,7 @@
             if (confirm("Are you sure you want to delete this post?")) {
                 // Send AJAX request to delete the post
                 $.ajax({
-                    url: "lib/Ajax_DeleteAction.php",
+                    url: "lib/AJAX/Ajax_DeleteAction.php",
                     type: "POST",
                     data: "action=comment&userLoggedIn=" + userLoggedIn + "&id=" + commendID,
                     cache: false,
@@ -205,7 +184,7 @@
             isLoading = true; // Set the flag to true
 
             $.ajax({
-                url: "lib/Ajax_ProfileContent.php",
+                url: "lib/AJAX/Ajax_ProfileContent.php",
                 type: "POST",
                 data: "page=" + page + "&id=" + userName + "&content_type=" + content + "&loggedInUser=" + userLoggedIn,
                 cache: false,
@@ -296,7 +275,7 @@
             if((document.documentElement.scrollTop + window.innerHeight - document.body.scrollHeight >= 0) && noMorePosts === 'false'){
 
                 $.ajax({
-                    url: "lib/Ajax_ProfileContent.php",
+                    url: "lib/AJAX/Ajax_ProfileContent.php",
                     type: "POST",
                     data: "page=" + page + "&id=" + userName + "&content_type=" + selectedContent,
                     cache: false,

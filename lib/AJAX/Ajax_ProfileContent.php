@@ -1,8 +1,8 @@
 <?php
-    require_once "config/DBconnection.php";
-    require_once "controllers/PostManager.php";
-    require_once "controllers/CommentsManager.php";
-    require_once "controllers/LikesManager.php";
+    require_once "../config/DBconnection.php";
+    require_once "../controllers/PostManager.php";
+    require_once "../controllers/CommentsManager.php";
+    require_once "../controllers/LikesManager.php";
 
     $user_identifier = $_REQUEST['id'];
     $loggedInUser = $_REQUEST['loggedInUser'];

@@ -1,7 +1,7 @@
 <?php
 
-    require_once "config/DBconnection.php";
-    require_once "controllers/NotificationsManager.php";
+    require_once "../config/DBconnection.php";
+    require_once "../controllers/NotificationsManager.php";
 
     $postLimit = 10;
     $userLoggedIn = $_REQUEST['userLoggedIn'];

@@ -89,7 +89,7 @@
                 $html .=
                     <<<HTML
                             <input type='hidden' class='noMorePosts' value="true">
-                            <p class='noMorePosts_text'> No more posts to show! </p>
+                            <p class='noMorePosts_text'> No more likes to show! </p>
                         HTML;
             }
 

@@ -1,7 +1,7 @@
 <?php
 
-    require_once "config/DBconnection.php";
-    require_once "controllers/CommentsManager.php";
+    require_once "../config/DBconnection.php";
+    require_once "../controllers/CommentsManager.php";
 
 
     $commentLimit = 10;
