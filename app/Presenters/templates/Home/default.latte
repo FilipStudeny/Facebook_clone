@@ -1,0 +1,83 @@
+{block content}
+
+<div class="m-auto w-full">
+
+    <div class="max-w-md mx-auto rounded-lg overflow-hidden shadow-lg m-2 p-2 bg-white flex items-center">
+        <select onchange="location = this.value;" class="w-full py-2 px-4 bg-white border border-gray-300 rounded-lg text-gray-900">
+            <option value="" selected disabled class="text-gray-400">Filter by tag</option>
+            {foreach $tags as $tag}
+                <option value="home?tag={$tag->name}" {if $tag->name === $selectedTag}selected{/if} class="text-gray-900 hover:bg-gray-100">{$tag->name}</option>
+            {/foreach}
+        </select>
+        <button onclick="location = 'home';" class="m-2 p-2 border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-800 hover:text-white ">Reset</button>
+    </div>
+
+
+
+
+    {foreach $posts as $post}
+        <div class="max-w-md mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white">
+            <a n:href="Profile:default $post->username" class="px-6 py-4 flex justify-between items-center hover:bg-gray-300">
+                <div class="flex items-center">
+                    <img class="w-12 h-12 rounded-full mr-4" src="https://placehold.co/40x40" alt="Avatar">
+                    <div>
+                        <p class="text-gray-900 text-lg font-semibold">{$post->username}</p>
+                        <p class="text-gray-600 text-sm"></p>
+                    </div>
+                </div>
+            </a>
+            {if $post->image}
+                <a n:href="Post:post $post->id" class="block hover:bg-gray-300 border-t border-gray-300 overflow-clip">
+                    <img class="w-full h-48 object-cover {if $post["tag_name_1"] === 'Nsfw' || $post["tag_name_2"] === 'Nsfw' || $post["tag_name_3"] === 'Nsfw'} blur {/if}" src="{$post->image}" alt="Post Image">
+                </a>
+            {/if}
+            {if $post->content}
+                <a n:href="Post:post $post->id" class="block hover:bg-gray-300 border-t border-gray-300">
+                    <div class="px-6 py-4">
+                        <p class="text-gray-700 text-base line-clamp-3">
+                            {$post->content}
+                        </p>
+                    </div>
+                </a>
+            {/if}
+
+            <div class="flex items-center justify-between border-t border-gray-300 px-6 py-3">
+                <div class="flex space-x-2">
+                    {for $i = 1; $i <= 3; $i++}
+                        {if $post["tag_name_$i"]}
+                            <span class="inline-block bg-{if $post["tag_name_$i"] === 'Nsfw'}red-500 text-white{else}gray-200 text-gray-700{/if} rounded-full px-3 py-1 text-sm font-semibold">
+                                {$post["tag_name_$i"]}
+                            </span>
+                        {/if}
+                    {/for}
+                </div>
+                <span class="text-sm text-gray-500">{$post->created_at | date:'F j, Y'}</span>
+            </div>
+
+        </div>
+    {/foreach}
+
+    <div class="max-w-md mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white flex items-center justify-center">
+        <a n:href="default, 1, $selectedTag" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white rounded-l-lg">First</a>
+        <a n:href="default, $paginator->page - 1, $selectedTag" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white">Previous</a>
+
+        {if $paginator->getPageCount() > 1}
+            {foreach range(max(1, $paginator->page - 1), min($paginator->page + 1, $paginator->getPageCount())) as $page}
+                <a n:href="default, $page, $selectedTag" class="w-auto text-gray-900 text-center mx-1 px-4 py-2
+                    {if $page == $paginator->getPage()} bg-gray-800 text-white{else} hover:bg-gray-800 hover:text-white{/if}">
+                    {$page}
+                </a>
+            {/foreach}
+        {/if}
+
+        <a n:href="default, $paginator->getPage() + 1, $selectedTag" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white">Next</a>
+        <a n:href="default, $paginator->getPageCount(), $selectedTag" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white rounded-r-lg">Last</a>
+    </div>
+
+
+
+
+
+
+
+</div>

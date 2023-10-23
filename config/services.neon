@@ -1,0 +1,14 @@
+services:
+	- App\Router\RouterFactory::createRouter
+	- App\CustomAuthenticator
+	- App\Models\PostModel
+	- App\Models\UserModel
+	- App\Models\CommentsModel
+	- App\Models\LikeModel
+
+
+search:
+	-	in: %appDir%
+		classes:
+			- *Factory
+			- *Facade

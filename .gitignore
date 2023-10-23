@@ -1,4 +1,8 @@
-assets/images/*
+config/local.neon
+vendor
+bin
+temp
+node_modules
 .idea
-assets/uploads/images/*
-ChatService/vendor
+log
+

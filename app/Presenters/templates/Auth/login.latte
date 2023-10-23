@@ -1,0 +1,36 @@
+{block content}
+<div class="w-full md:w-1/2 flex flex-col items-center justify-center m-4 shadow-2xl p-4">
+    <div class="flex flex-row justify-evenly items-center">
+        <img src="{$basePath}/images/kiwi_logo.svg" width="50" height="50" alt="user image" class="mr-4">
+        <h2 class="font-bold text-2xl">Sign into you account</h2>
+    </div>
+
+    <form n:name="loginForm" class="w-full">
+
+        <div class="mb-4">
+            <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+            <input n:name="email" type="text" id="email" class="w-full border border-gray-300 p-2 rounded" required>
+            {if isset($form['email']->errors)}
+                <p class="text-red-500 text-xs italic" n:inner-foreach="$form['email']->errors as $error">{$error}</p>
+            {/if}
+        </div>
+
+        <div class="mb-4">
+            <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+            <input n:name="password" type="password" id="password" class="w-full border border-gray-300 p-2 rounded" required>
+            {if isset($form['password']->errors)}
+                <p class="text-red-500 text-xs italic" n:inner-foreach="$form['password']->errors as $error">{$error}</p>
+            {/if}
+        </div>
+
+
+        <button n:name="submit" type="submit" class="float-right w-full md:w-auto mt-4 md:mt-0 text-white bg-gray-900 font-semibold py-2 px-4 rounded hover:bg-white hover:text-gray-900">Sign in</button>
+    </form>
+
+    <p class="mt-4 text-gray-900"> Don't have an account yet? <a n:href="Auth:in" class="text-gray-900 font-bold p-1 rounded hover:bg-gray-800 hover:text-white">Register here</a>.</p>
+
+    <ul class="rounded w-full mt-2" n:ifcontent>
+        <li class="bg-red-400 m-1 p-1 list-disc list-inside text-white font-bold rounded" n:foreach="$form->ownErrors as $error">{$error}</li>
+    </ul>
+
+</div>

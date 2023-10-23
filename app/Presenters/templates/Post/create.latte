@@ -1,0 +1,95 @@
+{block content}
+
+<div class="m-auto w-full flex flex-col items-center justify-center">
+    <div class="w-full mt-2">
+        <form n:name="postForm" class="w-full bg-white rounded-lg shadow-md" enctype="multipart/form-data">
+            <h2 class="bg-gray-900 text-white font-bold text-xl p-4 rounded-tl rounded-tr">Create new post</h2>
+            <div class="mb-6 p-4">
+                <div class="flex flex-row justify-between">
+                    <label for="content" class="block text-gray-700 text-sm font-bold mb-2">Content</label>
+                    {if isset($form['content']->errors)}
+                        <p class="text-red-500 text-xs italic" n:inner-foreach="$form['content']->errors as $error">{$error}</p>
+                    {/if}
+                </div>
+                <textarea id="content" n:name="content" class="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter content" rows="5"></textarea>
+            </div>
+
+            <div class="mb-6 p-4">
+                <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Upload Image</label>
+                <label for="image" class="relative w-full h-12 border-2 border-blue-300 border-dashed rounded cursor-pointer hover:border-gray-900 flex items-center justify-center">
+                    <span id="file-chosen" class="text-blue-500 flex flex-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Choose a file
+                    </span>
+                </label>
+                <input type="file" id="image" n:name="image" accept="image/*" class="hidden" onchange="displayImage(event)">
+                <img id="image-preview" class="mt-4 m-auto border border-gray-300 object-contain" style="max-width: 100%; max-height: 200px; display: none;">
+            </div>
+
+            <div class="mb-1 p-2 flex flex-col justify-center  border-t border-gray-300">
+                <div class="flex flex-row justify-between">
+                    <label for="tags" class="text-gray-700 text-sm font-bold mb-2">Tags (up to 3)</label>
+                    {if isset($form['tag1']->errors)}
+                        <p class="text-red-500 text-xs italic" n:inner-foreach="$form['tag1']->errors as $error">{$error}</p>
+                    {/if}
+                </div>
+                <div class="flex flex-row flex-wrap items-center justify-center">
+                    {foreach $tags as $tag}
+                        <div class="m-1 p-2">
+                            <input type="checkbox" n:name="tag{$tag->id}" id="tag{$tag->id}" value="{$tag->id}" class="hidden peer" onchange="handleCheckboxChange(this)" required="">
+                            <label for="tag{$tag->id}" class="p-2 text-gray-900 bg-gray-200 border-2 border-gray-300 rounded-lg cursor-pointer transition-colors peer-checked:bg-red-500 peer-checked:text-white hover:bg-gray-300">
+                                {$tag->name}
+                            </label>
+                        </div>
+                    {/foreach}
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end p-1 w-full md:w-auto">
+                <button n:name="submit" class="text-gray-900 p-3 w-full md:w-auto hover:bg-gray-700 border border-gray-900 hover:text-white rounded font-bold" type="submit">
+                    Create Post
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    let checkedCount = 0;
+
+    function handleCheckboxChange(checkbox) {
+        const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkedBoxes.length > 3) {
+            checkbox.checked = false;
+            return;
+        }
+        if (checkbox.checked) {
+            checkedCount++;
+        } else {
+            checkedCount--;
+        }
+        if (checkedCount > 3) {
+            checkbox.checked = false;
+            checkedCount--;
+        }
+    }
+
+
+    function displayImage(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const imagePreview = document.getElementById('image-preview');
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+        };
+
+        reader.readAsDataURL(file);
+        const fileName = document.getElementById('file-chosen');
+        fileName.textContent = file.name;
+    }
+</script>
