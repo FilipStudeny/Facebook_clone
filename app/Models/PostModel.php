@@ -8,18 +8,31 @@ final class PostModel
 {
     public function __construct(private Nette\Database\Explorer $database) {}
 
-    public function getAllPaginated(int $offset, int $limit)
+    public function getAllPaginated(int $userId, int $offset, int $limit)
     {
         $query = $this->database->query("
-            SELECT p.*, u.username, 
-            (SELECT t1.name FROM tags t1 WHERE t1.id = p.tag1) as tag_name_1, 
-            (SELECT t2.name FROM tags t2 WHERE t2.id = p.tag2) as tag_name_2, 
-            (SELECT t3.name FROM tags t3 WHERE t3.id = p.tag3) as tag_name_3 
-            FROM posts p JOIN users u ON p.creator = u.id ORDER BY created_at DESC 
-            LIMIT ? OFFSET ?", $limit, $offset);
+        SELECT 
+            p.id,
+            p.content,
+            (SELECT t1.name FROM tags t1 WHERE t1.id = p.tag1) as tag_name_1,
+            (SELECT t2.name FROM tags t2 WHERE t2.id = p.tag2) as tag_name_2,
+            (SELECT t3.name FROM tags t3 WHERE t3.id = p.tag3) as tag_name_3,
+            p.created_at,
+            p.image,
+            u.username,
+            EXISTS(
+                SELECT 1 
+                FROM Likes 
+                WHERE user_id = ? AND liked_entity_id = p.id AND type = 'post'
+            ) as liked
+        FROM posts p 
+        JOIN users u ON p.creator = u.id 
+        ORDER BY created_at DESC 
+        LIMIT ? OFFSET ?", $userId, $limit, $offset);
 
         return $query->fetchAll();
     }
+
 
     public function getTotalCount()
     {
@@ -31,6 +44,19 @@ final class PostModel
         $query = $this->database->table('posts')
             ->where('(tag1 IN (SELECT id FROM tags WHERE name = ?) OR tag2 IN (SELECT id FROM tags WHERE name = ?) OR tag3 IN (SELECT id FROM tags WHERE name = ?))', $tag, $tag, $tag)
             ->count('*');
+
+        return $query;
+    }
+
+    public function getTotalCountByUser(string $username){
+        $user = $this->database->table('users')->where('username', $username)->fetch();
+        if(!$user){
+            return 0;
+        }
+        $userId = $user->id;
+        $query = $this->database->table('posts')
+            ->where('creator', $userId)
+            ->count();
 
         return $query;
     }
@@ -53,13 +79,18 @@ final class PostModel
         return $post;
     }
 
-    public function getByTagPaginated(string $tag, int $offset, int $limit)
+    public function getByTagPaginated(int $userId, string $tag, int $offset, int $limit)
     {
         $query = $this->database->query("
             SELECT p.*, u.username, 
             t1.name as tag_name_1, 
             t2.name as tag_name_2, 
-            t3.name as tag_name_3 
+            t3.name as tag_name_3,
+            EXISTS(
+                SELECT 1 
+                FROM Likes 
+                WHERE user_id = ? AND liked_entity_id = p.id AND type = 'post'
+            ) as liked
             FROM posts p 
             JOIN users u ON p.creator = u.id 
             LEFT JOIN tags t1 ON p.tag1 = t1.id
@@ -67,7 +98,7 @@ final class PostModel
             LEFT JOIN tags t3 ON p.tag3 = t3.id
             WHERE t1.name = ? OR t2.name = ? OR t3.name = ?
             ORDER BY created_at DESC
-            LIMIT ? OFFSET ?", $tag, $tag, $tag, $limit, $offset);
+            LIMIT ? OFFSET ?", $userId ,$tag, $tag, $tag, $limit, $offset);
 
         return $query->fetchAll();
     }

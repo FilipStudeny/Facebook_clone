@@ -1,0 +1,22 @@
+
+<div class="w-full border border-gray-300 p-4 rounded-lg mx-auto overflow-hidden shadow-lg m-2 bg-white">
+    <a n:href="Profile:default $comment->comment_creator" class="flex items-center hover:bg-gray-200 p-2 rounded-md">
+        <img class="w-12 h-12 rounded-full mr-4" src="https://placehold.co/40x40" alt="Avatar">
+        <div>
+            <p class="text-gray-900 text-lg font-semibold">{$comment->comment_creator}</p>
+            <p class="text-gray-600 text-sm">{$comment->created_at | date:'F j, Y'}</p>
+        </div>
+    </a>
+    <div class="mt-2">
+        <p class="text-gray-700 text-base">{$comment->content}</p>
+    </div>
+
+    <div class="w-full mt-2 p-2 flex justify-end">
+        <form n:name="commentLikeForm">
+            <input type="hidden" n:name="entityId" value="{$comment->id}">
+            <button n:name="like" class="flex flex-row justify-center items-center text-gray-900 text-xl p-2 rounded-full hover:bg-red-500 border-none {if $comment->liked}text-red-500{else}hover:text-white text-gray-900{/if}" type="submit">
+                {if $comment->liked}<i class="fa-solid fa-heart"></i>{else}<i class="fa-regular fa-heart"></i>{/if}
+            </button>
+        </form>
+    </div>
+</div>
