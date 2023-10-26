@@ -51,6 +51,49 @@
 		<script src="https://nette.github.io/resources/js/3/netteForms.min.js"></script>
 		<script src="https://kit.fontawesome.com/a2c399c19b.js" crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	{/block}
+
+
+	<script>
+		// like.js
+		let url = {link "Like!"}
+				// Attach a click event handler to the like button
+				$(document).ready(function () {
+					$('.like-button').click(function (e) {
+						e.preventDefault();
+						var button = $(this); // Store reference to the button
+						var entityId = button.data('entity-id');
+						var type = button.data('entity-type');
+
+						// Send an AJAX request to the server
+						$.ajax({
+							type: 'POST',
+							url: url, // Replace with the URL of your like action endpoint
+							data: {
+								entityId: entityId,
+								entityType: type,
+							},
+							success: function (response) {
+								// Handle the response, e.g., update the like count or button appearance
+								if (response.liked) {
+									// Post/comment is now liked, update UI
+									button.addClass('text-red-500 liked'); // Use the stored reference to update the button
+									button.find('i').removeClass('fa-regular').addClass('fa-solid'); // Change the icon to a solid heart
+									// Update the $post->liked value in the template
+									button.attr('data-liked', 'true');
+								} else {
+									// Post/comment is unliked, update UI
+									button.removeClass('text-red-500 liked'); // Use the stored reference to update the button
+									button.find('i').removeClass('fa-solid').addClass('fa-regular'); // Change the icon to a regular heart
+									// Update the $post->liked value in the template
+									button.attr('data-liked', 'false');
+								}
+							},
+						});
+					});
+
+				});
+	</script>
 </body>
 </html>

@@ -67,13 +67,17 @@ final class PostModel
         return $tags;
     }
 
-    public function get(int $postId) {
+    public function get(int $postId, int $userId) {
+
         $post = $this->database->query("
             SELECT p.*, u.username, u.email, 
             (SELECT t1.name FROM tags t1 WHERE t1.id = p.tag1) as tag_name_1, 
             (SELECT t2.name FROM tags t2 WHERE t2.id = p.tag2) as tag_name_2, 
-            (SELECT t3.name FROM tags t3 WHERE t3.id = p.tag3) as tag_name_3 
-            FROM posts p JOIN users u ON p.creator = u.id WHERE p.id = ?", $postId)
+            (SELECT t3.name FROM tags t3 WHERE t3.id = p.tag3) as tag_name_3,
+            (CASE WHEN EXISTS (SELECT 1 FROM likes WHERE user_id = ? AND type = 'post' AND liked_entity_id = p.id) THEN 1 ELSE 0 END) as liked
+            FROM posts p 
+            JOIN users u ON p.creator = u.id 
+            WHERE p.id = ?", $userId, $postId)
             ->fetch();
 
         return $post;

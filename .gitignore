@@ -5,4 +5,4 @@ temp
 node_modules
 .idea
 log
-
+www/images/*

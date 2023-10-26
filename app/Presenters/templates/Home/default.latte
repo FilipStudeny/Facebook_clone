@@ -13,54 +13,8 @@
     </div>
 
     {foreach $posts as $post}
-        <div class="w-full mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white">
-            <a n:href="Profile:default $post->username" class="px-6 py-4 flex justify-between items-center hover:bg-gray-300">
-                <div class="flex items-center">
-                    <img class="w-12 h-12 rounded-full mr-4" src="https://placehold.co/40x40" alt="Avatar">
-                    <div>
-                        <p class="text-gray-900 text-lg font-semibold">{$post->username}</p>
-                        <p class="text-gray-600 text-sm"></p>
-                    </div>
-                </div>
-            </a>
-            {if $post->image}
-                <a n:href="Post:post $post->id" class="block hover:bg-gray-300 border-t border-gray-300 overflow-clip">
-                    <img class="w-full h-48 object-cover {if $post["tag_name_1"] === 'Nsfw' || $post["tag_name_2"] === 'Nsfw' || $post["tag_name_3"] === 'Nsfw'} blur {/if}" src="{$post->image}" alt="Post Image">
-                </a>
-            {/if}
-            {if $post->content}
-                <a n:href="Post:post $post->id" class="block hover:bg-gray-300 border-t border-gray-300">
-                    <div class="px-6 py-4">
-                        <p class="text-gray-700 text-base line-clamp-3">
-                            {$post->content}
-                        </p>
-                    </div>
-                </a>
-            {/if}
+        {include '../@post.latte', post: $post}
 
-            <div class="flex items-center justify-between border-t border-gray-300 px-6 py-3">
-                <div class="flex space-x-2">
-                    {for $i = 1; $i <= 3; $i++}
-                        {if $post["tag_name_$i"]}
-                            <span class="inline-block bg-{if $post["tag_name_$i"] === 'Nsfw'}red-500 text-white{else}gray-200 text-gray-700{/if} rounded-full px-3 py-1 text-sm font-semibold">
-                                {$post["tag_name_$i"]}
-                            </span>
-                        {/if}
-                    {/for}
-                </div>
-                <span class="text-sm text-gray-500">{$post->created_at | date:'F j, Y'}</span>
-            </div>
-
-            <div class="w-full mt-2 p-2 flex justify-end">
-                <form n:name="likeForm">
-                    <input type="hidden" n:name="entityId" value="{$post->id}">
-                    <button n:name="like" class="flex flex-row justify-center items-center text-gray-900 text-xl p-2 rounded-full hover:bg-red-500 border-none hover:text-white {if $post->liked}text-red-500{else}text-gray-900{/if}" type="submit">
-                        {if $post->liked}<i class="fa-solid fa-heart"></i>{else}<i class="fa-regular fa-heart"></i>{/if}
-                    </button>
-                </form>
-            </div>
-
-        </div>
     {/foreach}
 
     {if $paginator->getPageCount() > 1}

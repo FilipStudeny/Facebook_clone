@@ -41,12 +41,11 @@
     </div>
 
     {foreach $likes as $like}
-
         {if $like->type == "comment"}
             {include '../@comment.latte', comment: json_decode($like->data)}
         {/if}
 
-        {if $like->type == 'post'}
+        {if $like->type == "post"}
             {include '../@post.latte', post: json_decode($like->data)}
         {/if}
     {/foreach}

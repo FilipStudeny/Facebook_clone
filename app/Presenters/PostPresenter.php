@@ -8,6 +8,7 @@ use App\Models\LikeModel;
 use App\Models\PostModel;
 use JetBrains\PhpStorm\NoReturn;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
 use Nette\Application\UI\Presenter;
 use Nette;
 use Nette\Application\UI\Form;
@@ -20,13 +21,25 @@ class PostPresenter extends Presenter
     {
     }
 
+    /**
+     * @throws BadRequestException
+     */
     public function renderPost(int $postId): void
     {
         $userId = $this->getUser()->getId();
-        $this->template->comments = $this->commentsModel->getCommentsByPostId($postId, $userId);
-        $this->template->post = $this->postModel->get($postId);
-
+        $coments = $this->commentsModel->getCommentsByPostId($postId, $userId);
+        if(!$coments){
+            $this->error();
+        }
+        $post = $this->postModel->get($postId, $userId);
+        if(!$post){
+            $this->error('Stránka nebyla nalezena');
+        }
         $liked = $this->likeModel->hasUserLikedPost($userId, $postId);
+
+
+        $this->template->comments = $coments;
+        $this->template->post = $post;
         $this->template->liked = $liked;
     }
 
@@ -145,51 +158,31 @@ class PostPresenter extends Presenter
         $this->redirect('this');
     }
 
-
-    protected function createLikeForm(string $type): Form
-    {
-        $form = new Form();
-        $form->addHidden('entityId');
-        $form->addSubmit('like', 'Like');
-        $form->onSuccess[] = function (Form $form, \stdClass $values) use ($type) {
-            $this->likeFormSucceeded($form, $values, $type);
-        };
-        return $form;
-    }
-
-    protected function createComponentLikeForm(): Form
-    {
-        return $this->createLikeForm('post');
-    }
-
-    protected function createComponentCommentLikeForm(): Form
-    {
-        return $this->createLikeForm('comment');
-    }
-
-    /**
-     * @throws AbortException
-     */
-    #[NoReturn] public function likeFormSucceeded(Form $form, \stdClass $values, string $type): void
-    {
+    public function handleLike(): void {
         $userId = $this->getUser()->getId();
-        $targetId = $values->entityId;
-        $createdAt = new \DateTime();
+        $entityId = $this->getParameter('entityId');
+        $type = $this->getParameter('entityType');
 
         $likeModelMethod = $type === 'post' ? 'hasUserLikedPost' : 'hasUserLikedComment';
-        $existing_like = $this->likeModel->$likeModelMethod($userId, $targetId);
+        $existingLike = $this->likeModel->$likeModelMethod($userId, $entityId);
 
-        if ($existing_like) {
-            $this->likeModel->deleteLike($userId, $type, $targetId);
+        if ($existingLike) {
+            if ($type === 'post') {
+                $this->likeModel->deleteLike((int)$userId, 'post', (int)$entityId);
+            } elseif ($type === 'comment') {
+                $this->likeModel->deleteLike($userId, 'comment', $entityId);
+            }
+            $liked = false;
         } else {
             $this->database->table('Likes')->insert([
                 'user_id' => $userId,
                 'type' => $type,
-                'liked_entity_id' => $targetId,
-                'created_at' => $createdAt
+                'liked_entity_id' => $entityId,
+                'created_at' => new \DateTime(),
             ]);
+            $liked = true;
         }
 
-        $this->redirect('this');
+        $this->sendJson(['liked' => $liked]);
     }
 }

@@ -43,49 +43,31 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->template->paginator = $this->paginator;
     }
 
-    protected function createLikeForm(string $type): Form
-    {
-        $form = new Form();
-        $form->addHidden('entityId');
-        $form->addSubmit('like', 'Like');
-        $form->onSuccess[] = function (Form $form, \stdClass $values) use ($type) {
-            $this->likeFormSucceeded($form, $values, $type);
-        };
-        return $form;
-    }
-
-    protected function createComponentLikeForm(): Form
-    {
-        return $this->createLikeForm('post');
-    }
-
-    protected function createComponentCommentLikeForm(): Form
-    {
-        return $this->createLikeForm('comment');
-    }
-
-    /**
-     * @throws AbortException
-     */
-    #[NoReturn] public function likeFormSucceeded(Form $form, \stdClass $values, string $type): void{
+    public function handleLike(): void {
         $userId = $this->getUser()->getId();
-        $targetId = $values->entityId;
-        $createdAt = new \DateTime();
+        $entityId = $this->getParameter('entityId');
+        $type = $this->getParameter('entityType');
 
         $likeModelMethod = $type === 'post' ? 'hasUserLikedPost' : 'hasUserLikedComment';
-        $existing_like = $this->likeModel->$likeModelMethod($userId, (int)$targetId);
+        $existingLike = $this->likeModel->$likeModelMethod($userId, $entityId);
 
-        if ($existing_like) {
-            $this->likeModel->deleteLike($userId, $type, $targetId);
+        if ($existingLike) {
+            if ($type === 'post') {
+                $this->likeModel->deleteLike((int)$userId, 'post', (int)$entityId);
+            } elseif ($type === 'comment') {
+                $this->likeModel->deleteLike($userId, 'comment', $entityId);
+            }
+            $liked = false;
         } else {
             $this->database->table('Likes')->insert([
                 'user_id' => $userId,
                 'type' => $type,
-                'liked_entity_id' => $targetId,
-                'created_at' => $createdAt
+                'liked_entity_id' => $entityId,
+                'created_at' => new \DateTime(),
             ]);
+            $liked = true;
         }
 
-        $this->redirect('this');
+        $this->sendJson(['liked' => $liked]);
     }
 }

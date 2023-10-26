@@ -31,4 +31,7 @@ final class Error4xxPresenter extends Nette\Application\UI\Presenter
 		$this->template->httpCode = $code;
 		$this->template->setFile($file);
 	}
+
+    public function handleLike(): void {
+    }
 }

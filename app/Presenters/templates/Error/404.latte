@@ -1,8 +1,19 @@
 {block content}
-<h1 n:block=title>Page Not Found</h1>
-
-<p>The page you requested could not be found. It is possible that the address is
-incorrect, or that the page no longer exists. Please use a search engine to find
-what you are looking for.</p>
-
-<p><small>error 404</small></p>
+<div class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <h2 n:block=title  class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                404 Error - Page Not Found
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                The page you requested could not be found. It is possible that the address is
+                incorrect, or that the page no longer exists. Please use a search engine to find
+                what you are looking for. Return to the
+                <a href="/" class="text-red-500 hover:underline">homepage</a>.
+            </p>
+            <p class="mt-2 text-center text-xs text-gray-500">
+                error 404
+            </p>
+        </div>
+    </div>
+</div>
