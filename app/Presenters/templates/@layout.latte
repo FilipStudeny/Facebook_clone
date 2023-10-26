@@ -6,6 +6,8 @@
 
 	<title>{ifset title}{include title|stripHtml} | {/ifset}Nette Web</title>
 	<link rel="stylesheet" href="{$basePath}/style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
 </head>
 
 <body class="bg-gray-100">
@@ -13,7 +15,7 @@
 		<a href="/" class="w-auto text-4xl md:text-4xl font-bold text-center md:text-left my-auto md:mb-0">Facefook</a>
 		<div class="flex items-center">
 			<div class="mr-4">
-				<img src="{$basePath}/images/user.png" alt="user image" width="50" height="50" class="rounded-full">
+				<img n:if="$user->isLoggedIn()" src="{$basePath} {$user->getIdentity()->profile_picture}" alt="user image" width="50" height="50" class="rounded-full">
 			</div>
 			<div class="flex">
 				<a n:if="$user->isLoggedIn() == false" n:href="Auth:login" class="mr-2 py-2 px-4 font-semibold text-white rounded hover:bg-white hover:text-gray-900">Sign in</a>
@@ -51,7 +53,6 @@
 		<script src="https://nette.github.io/resources/js/3/netteForms.min.js"></script>
 		<script src="https://kit.fontawesome.com/a2c399c19b.js" crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	{/block}
 
 

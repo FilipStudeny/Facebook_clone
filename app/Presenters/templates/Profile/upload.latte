@@ -1,0 +1,86 @@
+{block content}
+<div class="m-auto w-full flex flex-col items-center justify-center">
+    <div class="w-full mt-8">
+        <div class="w-full bg-white rounded-lg shadow-md p-6">
+            <div class="mb-6">
+                <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Upload Image</label>
+                <label for="image" class="relative w-full h-12 border-2 border-blue-300 border-dashed rounded cursor-pointer hover:border-gray-900 flex items-center justify-center">
+                    <span id="file-chosen" class="text-blue-500 flex flex-row items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Choose a file
+                    </span>
+                </label>
+                <input type="file" id="image" name="image" accept="image/*" class="hidden" onchange="displayImage(event)">
+                <img id="image-preview" class="mt-4 mx-auto border border-gray-300 object-contain max-w-full max-h-64" style="display: none;">
+            </div>
+            <input type="hidden" id="croppedImageData" name="croppedImageData"> <!-- Hidden input for cropped image data -->
+            <button onclick="cropAndSave()" id="cropButton" class="bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Crop and save
+            </button>
+            <div id="loading-spinner" class="flex items-center justify-center mt-4 hidden">
+                <div class="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-blue-500 mr-4"></div>
+                <div class="text-gray-700 text-xl">Uploading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css">
+
+<script>
+    var cropper;
+    function displayImage(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const imagePreview = document.getElementById('image-preview');
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+
+            // Initialize Cropper
+            const image = document.getElementById('image-preview');
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+                minContainerWidth: 200,
+                minContainerHeight: 200,
+                autoCropArea: 1,
+            });
+        };
+
+        reader.readAsDataURL(file);
+        const fileName = document.getElementById('file-chosen');
+        fileName.textContent = file.name;
+    }
+
+    function cropAndSave() {
+        const canvas = cropper.getCroppedCanvas();
+        const croppedImageData = canvas.toDataURL('image/jpeg');
+
+        // Display the loading spinner
+        const loadingSpinner = document.getElementById('loading-spinner');
+        loadingSpinner.style.display = 'block';
+        $.ajax({
+            type: 'POST',
+            url:  {link "handleUpload!"},
+            data: {
+                croppedImageData: croppedImageData
+            },
+            success: function () {
+                window.location.href = {link "Home:"};
+            },
+            error: function (error) {
+                console.error(error);
+            },
+            complete: function () {
+                // Hide the loading spinner after the request is complete
+                loadingSpinner.style.display = 'none';
+            }
+        });
+    }
+</script>

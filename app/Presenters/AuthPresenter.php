@@ -12,14 +12,16 @@ use Nette;
 class AuthPresenter extends Presenter
 {
     public function __construct(private Nette\Database\Explorer $database, public CustomAuthenticator $authenticator)
-    {}
+    {
+    }
+
 //<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
 
     public function createComponentSignInForm(): Form
     {
         $form = new Form();
 
-        $form->addText('username' );
+        $form->addText('username');
         $form->addText('email');
         $form->addPassword('password');
         $form->addPassword('repeat_password');
@@ -30,7 +32,7 @@ class AuthPresenter extends Presenter
         $form->onSuccess[] = function (Form $form, array $data) {
 
             foreach ($data as $key => $value) {
-                if($value == "repeat_password"){
+                if ($value == "repeat_password") {
                     continue;
                 }
                 if (empty($value)) {
@@ -54,7 +56,8 @@ class AuthPresenter extends Presenter
         return $form;
     }
 
-    public function createComponentLoginForm(): Form{
+    public function createComponentLoginForm(): Form
+    {
         $form = new Form();
         $form->addText('email');
         $form->addText('password');
@@ -81,9 +84,11 @@ class AuthPresenter extends Presenter
     /**
      * @throws AbortException
      */
-    public function actionOut(): void{
+    public function actionOut(): void
+    {
         $this->getUser()->logout(true);
         $this->redirect('Home:');
     }
 
+    public function handleLike(): void{}
 }

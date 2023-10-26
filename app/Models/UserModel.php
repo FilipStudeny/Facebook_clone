@@ -12,4 +12,9 @@ final class UserModel
         return $this->database->table('Users')->where('username', $username)->fetch();
     }
 
+    public function updateProfilePicture(int $userId, string $image){
+        return $this->database->table('Users')->where('id', $userId)->update(['profile_picture' => $image]);
+
+    }
+
 }

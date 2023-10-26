@@ -6,9 +6,16 @@
     <div class="w-full mt-4 bg-white rounded-lg shadow-lg flex">
         <div class="flex-shrink-0 mx-2 border-r-2 border-gray-300 p-2">
             <div class="h-full flex items-center justify-center">
-                <img src="{$profile->profile_picture}" class="rounded-full h-32 w-32 object-cover" alt="Profile Picture">
+                <a n:href="Profile:upload" class="relative">
+                    <div class="w-full h-full absolute top-0 left-0 flex items-center rounded-full opacity-0 hover:bg-gray-800 hover:opacity-50 justify-center z-20">
+                        <i class="fa-solid fa-camera text-white text-4xl"></i>
+                    </div>
+                    <img src="{$profile->profile_picture}" class="rounded-full h-32 w-32 object-cover z-10" alt="Profile Picture">
+                </a>
             </div>
         </div>
+
+
         <div class="flex-1 p-4">
             <p class="text-3xl font-bold text-gray-800 mb-2">{$profile->username}</p>
             <p class="text-lg text-gray-600 mb-4">{$profile->firstname} {$profile->lastname} | {$profile->email}</p>

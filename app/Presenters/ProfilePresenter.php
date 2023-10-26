@@ -63,6 +63,38 @@ class ProfilePresenter extends Presenter
         $this->template->profile = $user;
     }
 
+    /**
+     * @throws AbortException
+     */
+    public function handlehandleUpload(): void
+    {
+        $userId = $this->getUser()->getId();
+        $croppedImageData = $this->getParameter('croppedImageData');
+        $imagePath = null;
+        if ($croppedImageData) {
+            $imagePath = $this->uploadImage($croppedImageData, $userId);
+        }
+
+        $this->userModel->updateProfilePicture($userId, $imagePath);
+    }
+
+    private function uploadImage($croppedImageData, string $userId): string
+    {
+        $decodedData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $croppedImageData));
+        $imageName = uniqid() . '-' . $userId . '.jpeg';
+        $uploadDir = __DIR__ . '/../../www/images/uploads/users/' . $userId . '/'; // Replace with your upload directory
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $imagePath = $uploadDir . $imageName;
+        file_put_contents($imagePath, $decodedData);
+
+        return "/images/uploads/users/" . $userId . "/" . $imageName;
+    }
+
+
     public function handleLike(): void {
         $userId = $this->getUser()->getId();
         $entityId = $this->getParameter('entityId');
