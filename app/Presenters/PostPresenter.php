@@ -26,7 +26,11 @@ class PostPresenter extends Presenter
      */
     public function renderPost(int $postId): void
     {
-        $userId = $this->getUser()->getId();
+        if($this->getUser()->isLoggedIn()){
+            $userId = $this->getUser()->getId();
+        }else{
+            $userId = 0;
+        }
         $coments = $this->commentsModel->getCommentsByPostId($postId, $userId);
         if(!$coments){
             $this->error();
