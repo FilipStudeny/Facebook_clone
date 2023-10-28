@@ -40,6 +40,9 @@
 				<a n:href="Settings:default" class="block p-2 text-gray-300 rounded hover:bg-white hover:text-gray-900">Settings</a>
 			</li>
 			<li n:if="$user->isLoggedIn()" class="w-auto md:w-full m-1 px-4 text-center">
+				<a n:href="Chat:messages" class="block p-2 text-gray-300 rounded hover:bg-white hover:text-gray-900">Messages</a>
+			</li>
+			<li n:if="$user->isLoggedIn()" class="w-auto md:w-full m-1 px-4 text-center">
 				<a href="#" class="block p-2 text-gray-300 rounded hover:bg-white hover:text-gray-900">Logout</a>
 			</li>
 		</ul>

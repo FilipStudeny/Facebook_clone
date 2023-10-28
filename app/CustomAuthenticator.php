@@ -28,11 +28,11 @@ final class CustomAuthenticator implements Authenticator
         }
 
         $user = $userData->toArray();
-        unset($user['password']);
+        //unset($user['password']);
 
         return new Nette\Security\SimpleIdentity($user['id'], 'admin', [
             'username' => $user['username'] ,
-            'profile_picture' => $user['profile_picture']
+            'profile_picture' => $user['profile_picture'],
         ]);
     }
 

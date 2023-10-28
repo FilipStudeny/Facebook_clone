@@ -1,0 +1,42 @@
+{block content}
+
+
+<div class="m-auto w-full flex flex-col items-center justify-center">
+
+    <div class="w-full p-4 m-2 bg-white rounded-lg shadow-lg">
+
+        <div class="flex flex-col space-y-4 p-4">
+
+            <!-- Chat messages -->
+            <div class="flex flex-row items-start space-x-4 hover:bg-gray-200 p-4 rounded-lg">
+                <img src="{$basePath} {$user->getIdentity()->profile_picture}" alt="user image" width="50" height="50" class="rounded-full">
+                <div>
+                    <p class="text-gray-700 text-xl">Last message asd asd awd ad ad d ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdawd a dadasdawd wa daw
+
+                    </p>
+                    <p class="text-gray-700 text-sm">10 minutes ago</p>
+                </div>
+            </div>
+
+            <div class="flex flex-row items-start justify-end space-x-4 hover:bg-gray-200 p-4 rounded-lg">
+                <div>
+                    <p class="text-gray-700 text-xl">Last message</p>
+                    <p>10 minutes ago</p>
+                </div>
+                <img src="{$basePath} {$user->getIdentity()->profile_picture}" alt="user image" width="50" height="50" class="rounded-full">
+            </div>
+            <!-- End Chat messages -->
+
+            <!-- Message input -->
+            <div class="flex flex-row items-center justify-between border-t-2 border-gray-300 py-2">
+                <input class="w-full p-2 mr-2" type="text" placeholder="Type your message here">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send</button>
+            </div>
+            <!-- End Message input -->
+
+        </div>
+
+    </div>
+
+
+</div>

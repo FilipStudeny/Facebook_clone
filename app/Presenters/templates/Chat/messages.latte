@@ -1,0 +1,21 @@
+{block content}
+
+
+<div class="m-auto w-full flex flex-col items-center justify-center">
+
+    {foreach $chats as $chat}
+        <div class="w-full p-4 m-2 bg-white rounded-lg shadow-lg">
+            <a n:href="Chat:chat admin, bogo " class="flex flex-row items-center hover:bg-gray-200 p-4 rounded-lg">
+                <div>
+                    <img src="{$basePath} {$chat->profile_picture}" alt="user image" width="50" height="50" class="rounded-full">
+                </div>
+                <div class="w-full border-l-2 border-gray-300 ml-2 px-4 ">
+                    <h2 class="text-gray-700 text-xl font-bold mb-2">Chat with {$chat->username}</h2>
+                    <p class="w-full text-gray-700 flex flex-row justify-between ">{$chat->last_message}<span>{$chat->time_of_creation | date:'F j, Y'}</span></p>
+                </div>
+
+            </a>
+        </div>
+    {/foreach}
+
+</div>

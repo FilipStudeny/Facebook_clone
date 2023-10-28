@@ -31,6 +31,8 @@ class ProfilePresenter extends Presenter
     public function renderDefault(string $username, int $page = 1, string $type = 'Posts'): void{
         $user = $this->userModel->getUser($username);
         $this->template->type = $type;
+        $loggedInUser = $this->getUser()->getIdentity()->username;
+        $this->template->loggedInUser = $loggedInUser;
 
         if (!$user) {
             throw new Nette\Application\BadRequestException('User not found');
