@@ -30,9 +30,12 @@ class ChatPresenter extends Presenter
 
     public function renderChat(string $user1, string $user2): void
     {
+        $user1_data = $this->getUser();
+        $user1_id = $user1_data->id;
+
         $user2_data = $this->userModel->getUser($user2);
-        $user1_id = $this->getUser()->id;
-        $user2_id = $this->userModel->getUserIdByUsername($user2);
+        $user2_id = $user2_data['id'];
+
         $roomId = $this->generateRoomId($user1, $user2);
 
         $this->template->sender = $user1;
@@ -43,7 +46,7 @@ class ChatPresenter extends Presenter
 
         $roomExists = $this->messagesModel->chatRoomExists($roomId);
         if(!$roomExists){
-            $this->messagesModel->createRoom($user1_id, $user2_id, $roomId);
+            $this->messagesModel->createRoom($user1, $user2, $roomId);
         }
         $messagesTableExists = $this->messagesModel->messageTableExists($roomId);
         if(!$messagesTableExists){

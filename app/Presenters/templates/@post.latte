@@ -12,12 +12,13 @@
         <a n:href="Post:post $post->id" class="block hover:bg-gray-300 border-t border-gray-300 overflow-clip">
             <img class="w-full h-48 object-cover {if $post->tag_name_1 === 'Nsfw' || $post->tag_name_2 === 'Nsfw' || $post->tag_name_3 === 'Nsfw'} blur {/if}" src="{$post->image}" alt="Post Image">
         </a>
+
     {/if}
     {if $post->content}
         <a n:href="Post:post $post->id" class="block hover:bg-gray-300 border-t border-gray-300">
             <div class="px-6 py-4">
-                <p class="text-gray-700 text-base line-clamp-3">
-                    {$post->content}
+                <p class="text-gray-700 text-base {if  !isset($post->viewed) }line-clamp-3{/if}">
+                    {$post->content | breakLines }
                 </p>
             </div>
         </a>

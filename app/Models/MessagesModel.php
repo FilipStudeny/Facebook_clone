@@ -32,13 +32,16 @@ final class MessagesModel
     ", $userId, $userId, $userId, $userId)->fetchAll();
     }
 
-    public function createRoom(int $user1, int $user2, string $room_name){
+    public function createRoom(string $user1, string $user2, string $room_name){
+
+        $user1_id = $this->database->table("users")->select("id")->where('username', $user1)->fetch();
+        $user2_id = $this->database->table("users")->select("id")->where('username', $user2)->fetch();
 
         $createdAt = new DateTime();
 
         $this->database->table('chats')->insert([
-            'user1_id' => $user1,
-            'user2_id' => $user2,
+            'user1_id' => $user1_id,
+            'user2_id' => $user2_id,
             'time_of_creation' => $createdAt,
             'room_name' => $room_name,
             'last_message' => "No new message"

@@ -58,7 +58,8 @@ final class CustomAuthenticator implements Authenticator, Nette\Security\Identit
             'lastname' => $data['lastname'],
             'gender' => $data['gender'],
             'registration_date' => date('Y-m-d H:i:s'),
-            'profile_picture' => "/images/user.png"
+            'profile_picture' => "/images/user.png",
+            'role' => 'user'
         ];
 
         $this->database->table('users')->insert($newUserData);
@@ -67,8 +68,11 @@ final class CustomAuthenticator implements Authenticator, Nette\Security\Identit
     public function wakeupIdentity(IIdentity $identity): ?Nette\Security\SimpleIdentity{
         $userId = $identity->getId();
         $user = $this->userModel->getUserById($userId);
+        if(!$user){
+            return null;
+        }
 
-        return new Nette\Security\SimpleIdentity($user['id'], 'admin', [
+        return new Nette\Security\SimpleIdentity($user['id'], $user['role'], [
             'username' => $user['username'] ,
             'profile_picture' => $user['profile_picture'],
         ]);

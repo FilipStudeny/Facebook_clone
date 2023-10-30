@@ -32,16 +32,15 @@ class PostPresenter extends Presenter
             $userId = 0;
         }
         $coments = $this->commentsModel->getCommentsByPostId($postId, $userId);
-        if(!$coments){
-            $this->error();
-        }
         $post = $this->postModel->get($postId, $userId);
         if(!$post){
             $this->error('Stránka nebyla nalezena');
         }
+
+        $post['viewed'] = 'true';
         $liked = $this->likeModel->hasUserLikedPost($userId, $postId);
 
-
+        $this->template->addFilter('nl2br', 'nl2br');
         $this->template->comments = $coments;
         $this->template->post = $post;
         $this->template->liked = $liked;
