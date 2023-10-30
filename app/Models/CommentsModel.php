@@ -53,6 +53,10 @@ final class CommentsModel
         ]);
     }
 
+    public function getCountByUserId(int $id){
+        return $this->database->table('comments')->where('user_id', $id)->count('id');
+    }
+
     public function getTotalCountByUser(string $username){
         $user = $this->database->table('users')->where('username', $username)->fetch();
         if(!$user){

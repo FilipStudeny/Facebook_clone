@@ -66,6 +66,10 @@ final class PostModel
         return $this->database->table('posts')->count('*');
     }
 
+    public function getCountByUserId(int $id){
+        return $this->database->table('posts')->where('creator', $id)->count('id');
+    }
+
     public function getTotalCountByTag($tag)
     {
         $query = $this->database->table('posts')

@@ -48,6 +48,8 @@ class AuthPresenter extends Presenter
 
             try {
                 $this->authenticator->createNewUser($data);
+                $this->redirect('Auth:login');
+
             } catch (\Exception $e) {
                 $form->addError($e->getMessage());
             }

@@ -28,8 +28,9 @@ final class CustomAuthenticator implements Authenticator, Nette\Security\Identit
             $userData->update(['password' => $this->passwords->hash($password)]);
         }
 
+        $userData->update(['last_login_time' => date('Y-m-d H:i:s')]);
         $user = $userData->toArray();
-        //unset($user['password']);
+        unset($user['password']);
 
         return new Nette\Security\SimpleIdentity($user['id'], 'admin', [
             'username' => $user['username'] ,
@@ -59,7 +60,8 @@ final class CustomAuthenticator implements Authenticator, Nette\Security\Identit
             'gender' => $data['gender'],
             'registration_date' => date('Y-m-d H:i:s'),
             'profile_picture' => "/images/user.png",
-            'role' => 'user'
+            'role' => 'user',
+            'banned' => 0
         ];
 
         $this->database->table('users')->insert($newUserData);

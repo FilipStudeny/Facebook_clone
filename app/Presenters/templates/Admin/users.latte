@@ -1,0 +1,57 @@
+{block content}
+<div class="w-full mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white">
+    <h2 class="bg-gray-900 text-white font-bold text-xl p-4 rounded-tl-lg rounded-tr-lg">Users</h2>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-200 text-gray-600 uppercase text-xs leading-normal">
+            <tr>
+                <th class="py-3 px-6 text-left">ID</th>
+                <th class="py-3 px-6 text-left">Name</th>
+                <th class="py-3 px-6 text-left">Email</th>
+                <th class="py-3 px-6 text-left">First name</th>
+                <th class="py-3 px-6 text-left">Last name</th>
+                <th class="py-3 px-6 text-center">Role</th>
+                <th class="py-3 px-6 text-center">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="text-gray-600 text-sm font-light">
+            <!-- Use a loop to display users -->
+            {foreach $users as $singleUser}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{$singleUser->id}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                            {$singleUser->username}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{$singleUser->email}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{$singleUser->firstname}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{$singleUser->lastname}</td>
+                        <td class="px-6 py-4 text-sm font-medium text-center">{$singleUser->role}</td>
+                        <td class="px-6 py-4 text-sm font-medium text-center">
+                            <a n:href="Admin:user $singleUser->username" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
+                        </td>
+                    </form>
+                </tr>
+            {/foreach}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{if $paginator->getPageCount() > 1}
+    <div class="w-full mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white flex items-center justify-center">
+        <a n:href="default, $profile->username, 1, $type" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white rounded-l-lg">First</a>
+        <a n:href="default, $profile->username, $paginator->getPage() - 1, $type" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white">Previous</a>
+
+        {foreach range(max(1, $paginator->getPage() - 2), min($paginator->getPage() + 4, $paginator->getPageCount())) as $page}
+            <a n:href="default, $profile->username, $page, $type" class="w-auto text-gray-900 text-center mx-1 px-4 py-2
+            {if $page == $paginator->getPage()} bg-gray-800 text-white{else} hover:bg-gray-800 hover:text-white{/if}">
+                {$page}
+            </a>
+        {/foreach}
+
+        <a n:href="default, $profile->username, $paginator->getPage() + 1, $type" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white">Next</a>
+        <a n:href="default, $profile->username, $paginator->getPageCount(), $type" class="flex-1 text-gray-900 text-center m-1 py-2 hover:bg-gray-800 hover:text-white rounded-r-lg">Last</a>
+    </div>
+{/if}
