@@ -20,6 +20,7 @@ final class LikeModel
                     'created_at', p.created_at,
                     'image', p.image,
                     'username', u.username,
+                    'profile_picture', u.profile_picture,
                     'tag_name_1', (SELECT t1.name FROM tags t1 WHERE t1.id = p.tag1),
                     'tag_name_2', (SELECT t2.name FROM tags t2 WHERE t2.id = p.tag2),
                     'tag_name_3', (SELECT t3.name FROM tags t3 WHERE t3.id = p.tag3),
@@ -42,6 +43,7 @@ final class LikeModel
                     'content', c.content,
                     'comment_creator', u2.username,
                     'created_at', c.created_at,
+                    'profile_picture', u2.profile_picture,
                     'liked', EXISTS(
                         SELECT 1 FROM Likes WHERE user_id = c.user_id AND type = 'comment' AND liked_entity_id = c.id
                     )

@@ -12,6 +12,11 @@ final class UserModel
         return $this->database->table('Users')->where('username', $username)->fetch();
     }
 
+    public function getUserById(int $id): ?Nette\Database\Table\ActiveRow
+    {
+        return $this->database->table('Users')->where('id', $id)->fetch();
+    }
+
     public function getUserIdByUsername(string $username): ?int
     {
         $user = $this->getUser($username);

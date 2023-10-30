@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\UserModel;
 use Nette\Security\Authenticator;
 use Nette\Security\IIdentity;
 
@@ -9,9 +10,9 @@ use Nette;
 use Nette\Security\Passwords;
 use Nette\Database\Explorer;
 
-final class CustomAuthenticator implements Authenticator
+final class CustomAuthenticator implements Authenticator, Nette\Security\IdentityHandler
 {
-    public function __construct(private readonly Explorer $database, private readonly Passwords $passwords){}
+    public function __construct(private readonly Explorer $database, private readonly Passwords $passwords, private readonly UserModel $userModel){}
     function authenticate(string $username, string $password): IIdentity
     {
         $userData = $this->database->table('users')
@@ -63,4 +64,19 @@ final class CustomAuthenticator implements Authenticator
         $this->database->table('users')->insert($newUserData);
     }
 
+    public function wakeupIdentity(IIdentity $identity): ?Nette\Security\SimpleIdentity{
+        $userId = $identity->getId();
+        $user = $this->userModel->getUserById($userId);
+
+        return new Nette\Security\SimpleIdentity($user['id'], 'admin', [
+            'username' => $user['username'] ,
+            'profile_picture' => $user['profile_picture'],
+        ]);
+    }
+
+    function sleepIdentity(IIdentity $identity): IIdentity
+    {
+        // TODO: Implement sleepIdentity() method.
+        return $identity;
+    }
 }

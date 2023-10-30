@@ -20,6 +20,7 @@ final class PostModel
             p.created_at,
             p.image,
             u.username,
+            u.profile_picture,
             EXISTS(
                 SELECT 1 
                 FROM Likes 
@@ -33,6 +34,32 @@ final class PostModel
         return $query->fetchAll();
     }
 
+    public function getAllPaginatedByUser(int $userId, int $offset, int $limit)
+    {
+        $query = $this->database->query("
+        SELECT 
+            p.id,
+            p.content,
+            (SELECT t1.name FROM tags t1 WHERE t1.id = p.tag1) as tag_name_1,
+            (SELECT t2.name FROM tags t2 WHERE t2.id = p.tag2) as tag_name_2,
+            (SELECT t3.name FROM tags t3 WHERE t3.id = p.tag3) as tag_name_3,
+            p.created_at,
+            p.image,
+            u.username,
+            u.profile_picture,
+            EXISTS(
+                SELECT 1 
+                FROM Likes 
+                WHERE user_id = ? AND liked_entity_id = p.id AND type = 'post'
+            ) as liked
+        FROM posts p 
+        JOIN users u ON p.creator = u.id 
+        WHERE p.creator = ?
+        ORDER BY created_at DESC 
+        LIMIT ? OFFSET ?", $userId, $userId, $limit, $offset);
+
+        return $query->fetchAll();
+    }
 
     public function getTotalCount()
     {
@@ -70,7 +97,7 @@ final class PostModel
     public function get(int $postId, int $userId) {
 
         $post = $this->database->query("
-            SELECT p.*, u.username, u.email, 
+            SELECT p.*, u.username, u.email, u.profile_picture, 
             (SELECT t1.name FROM tags t1 WHERE t1.id = p.tag1) as tag_name_1, 
             (SELECT t2.name FROM tags t2 WHERE t2.id = p.tag2) as tag_name_2, 
             (SELECT t3.name FROM tags t3 WHERE t3.id = p.tag3) as tag_name_3,
@@ -86,7 +113,7 @@ final class PostModel
     public function getByTagPaginated(int $userId, string $tag, int $offset, int $limit)
     {
         $query = $this->database->query("
-            SELECT p.*, u.username, 
+            SELECT p.*, u.username, u.profile_picture, 
             t1.name as tag_name_1, 
             t2.name as tag_name_2, 
             t3.name as tag_name_3,

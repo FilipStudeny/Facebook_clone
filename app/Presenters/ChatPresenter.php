@@ -23,14 +23,23 @@ class ChatPresenter extends Presenter
         $userId = $this->getUser()->id;
 
         $chats = $this->messagesModel->getChatRooms($userId);
+        $loggedInUser = $this->getUser()->getIdentity()->username;
         $this->template->chats = $chats;
+        $this->template->loggedInUser = $loggedInUser;
     }
 
     public function renderChat(string $user1, string $user2): void
     {
-        $user1_id = $this->userModel->getUserIdByUsername($user1);
+        $user2_data = $this->userModel->getUser($user2);
+        $user1_id = $this->getUser()->id;
         $user2_id = $this->userModel->getUserIdByUsername($user2);
         $roomId = $this->generateRoomId($user1, $user2);
+
+        $this->template->sender = $user1;
+        $this->template->sender_id = $user1_id;
+        $this->template->recipient = $user2;
+        $this->template->recipient_id = $user2_id;
+        $this->template->recipient_profile_picture = $user2_data['profile_picture'];
 
         $roomExists = $this->messagesModel->chatRoomExists($roomId);
         if(!$roomExists){
@@ -42,10 +51,11 @@ class ChatPresenter extends Presenter
         }
     }
 
-    protected function generateRoomId(string $userId1,string $userId2)
+    protected function generateRoomId(string $userId1, string $userId2)
     {
         $userIds = [$userId1, $userId2];
         sort($userIds);
+        $userIds = array_map('strtolower', $userIds);
         return implode('_', $userIds);
     }
     public function createChatWithUser(){}

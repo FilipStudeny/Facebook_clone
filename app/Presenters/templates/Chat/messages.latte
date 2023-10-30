@@ -5,7 +5,7 @@
 
     {foreach $chats as $chat}
         <div class="w-full p-4 m-2 bg-white rounded-lg shadow-lg">
-            <a n:href="Chat:chat admin, bogo " class="flex flex-row items-center hover:bg-gray-200 p-4 rounded-lg">
+            <a n:href="Chat:chat $loggedInUser, $chat->username " class="flex flex-row items-center hover:bg-gray-200 p-4 rounded-lg">
                 <div>
                     <img src="{$basePath} {$chat->profile_picture}" alt="user image" width="50" height="50" class="rounded-full">
                 </div>

@@ -6,33 +6,18 @@
     <div class="w-full p-4 m-2 bg-white rounded-lg shadow-lg">
 
         <div class="flex flex-col space-y-4 p-4">
+            <div id="messages">
 
-            <!-- Chat messages -->
-            <div class="flex flex-row items-start space-x-4 hover:bg-gray-200 p-4 rounded-lg">
-                <img src="{$basePath} {$user->getIdentity()->profile_picture}" alt="user image" width="50" height="50" class="rounded-full">
-                <div>
-                    <p class="text-gray-700 text-xl">Last message asd asd awd ad ad d ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdd ad ad awd a dadasdawd a dadasdawd wa daw
+            </div>
 
-                    </p>
-                    <p class="text-gray-700 text-sm">10 minutes ago</p>
+            <form class="border-t-2 border-gray-300 py-2" id="chatForm">
+                <div class="flex">
+                    <input type="text" id="messageInput" placeholder="Type your message" autocomplete="off" required
+                           class="w-full border border-gray-300 rounded-l-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
+                            type="submit">Send</button>
                 </div>
-            </div>
-
-            <div class="flex flex-row items-start justify-end space-x-4 hover:bg-gray-200 p-4 rounded-lg">
-                <div>
-                    <p class="text-gray-700 text-xl">Last message</p>
-                    <p>10 minutes ago</p>
-                </div>
-                <img src="{$basePath} {$user->getIdentity()->profile_picture}" alt="user image" width="50" height="50" class="rounded-full">
-            </div>
-            <!-- End Chat messages -->
-
-            <!-- Message input -->
-            <div class="flex flex-row items-center justify-between border-t-2 border-gray-300 py-2">
-                <input class="w-full p-2 mr-2" type="text" placeholder="Type your message here">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send</button>
-            </div>
-            <!-- End Message input -->
+            </form>
 
         </div>
 
@@ -40,3 +25,114 @@
 
 
 </div>
+
+<script>
+    $(function() {
+        var conn = new WebSocket('ws://localhost:8080');
+        var recipient = {$recipient}; // Update with recipient's username
+        var recipient_id = {$recipient_id}
+        var sender = {$sender}; // Update with logged-in user's username
+        var sender_id = {$sender_id}
+        var roomId = generateRoomId(sender, recipient);
+
+        const sender_profile_picture = {$user->getIdentity()->profile_picture};
+        const recipient_profile_picture = {$recipient_profile_picture};
+
+
+        function generateRoomId(user1, user2) {
+            var sortedUsers = [user1, user2].sort();
+            return sortedUsers.join('_').toLowerCase();
+        }
+
+        conn.onopen = function() {
+            console.log('Connected to the chat server');
+            var registerData = {
+                action: 'registerUser',
+                username: sender,
+                recipient: recipient,
+                sender_id: sender_id,
+                recipient_id: recipient_id,
+                room: roomId
+            };
+            conn.send(JSON.stringify(registerData));
+
+            var createRoomData = {
+                action: 'createRoom',
+                username: sender,
+                recipient: recipient,
+                sender_id: sender_id,
+                recipient_id: recipient_id,
+                room: roomId
+            };
+            conn.send(JSON.stringify(createRoomData));
+        };
+
+        conn.onmessage = function(e) {
+            var msg = JSON.parse(e.data);
+
+            if (msg.hasOwnProperty('sender')) {
+                const iAmSender = msg.sender === sender;
+                const whichPicture = iAmSender ? sender_profile_picture : recipient_profile_picture;
+                const myMessage = iAmSender ? " flex-row-reverse" : "flex-row ";
+
+                const chatMessage = $("<div class='flex items-start " + myMessage + " space-x-4 hover:bg-gray-200 p-4 rounded-lg'>");
+
+                const userPicture = $(`<img src=` + whichPicture + ` alt="user image" width="50" height="50" class="rounded-full">`);
+                const messageContainer = $('<div>');
+                const messageText = $(`<p class="text-gray-700 text-xl mx-2">`).text(msg.message);
+                const time = $(`<p class="text-gray-700 text-sm mx-2">`).text(formatTime(msg.time));
+
+                messageContainer.append(time);
+                messageContainer.append(messageText);
+                chatMessage.append(userPicture);
+                chatMessage.append(messageContainer);
+                $('#messages').append(chatMessage);
+            }
+        };
+
+        $('#chatForm').submit(function(e) {
+            e.preventDefault();
+            var message = $('#messageInput').val();
+            var data = {
+                action: 'sendMessage',
+                room: roomId,
+                message: message,
+                username: sender,
+                sender: sender,
+                recipient: recipient,
+                sender_id: sender_id,
+                recipient_id: recipient_id,
+            };
+            conn.send(JSON.stringify(data));
+            $('#messageInput').val('');
+        });
+    });
+
+    function formatTime(timestamp) {
+        var current = new Date();
+        var previous = new Date(timestamp);
+        var msPerMinute = 60 * 1000;
+        var msPerHour = msPerMinute * 60;
+        var msPerDay = msPerHour * 24;
+        var msPerMonth = msPerDay * 30;
+        var msPerYear = msPerDay * 365;
+        var elapsed = current - previous;
+
+        if (elapsed < msPerMinute) {
+            if (elapsed / 1000 < 30) return "Just now";
+            return Math.round(elapsed / 1000) + ' seconds ago';
+        } else if (elapsed < msPerHour) {
+            return Math.round(elapsed / msPerMinute) + ' minutes ago';
+        } else if (elapsed < msPerDay) {
+            return Math.round(elapsed / msPerHour) + ' hours ago';
+        } else if (elapsed < msPerMonth) {
+            return Math.round(elapsed / msPerDay) + ' days ago';
+        } else if (elapsed < msPerYear) {
+            return Math.round(elapsed / msPerMonth) + ' months ago';
+        } else {
+            return Math.round(elapsed / msPerYear) + ' years ago';
+        }
+    }
+
+
+</script>

@@ -9,9 +9,10 @@ final class CommentsModel
     public function getAllPaginated(int $userId, int $offset, int $limit)
     {
         $query = $this->database->query("
-        SELECT c.*, u.username AS comment_creator,
+        SELECT c.*, u.username AS comment_creator, u.profile_picture,
         EXISTS(SELECT 1 FROM Likes WHERE user_id = c.user_id AND type = 'comment' AND liked_entity_id = c.id) AS liked
-        FROM Comments c JOIN Users u ON c.user_id = u.id 
+        FROM Comments c 
+        JOIN Users u ON c.user_id = u.id 
         WHERE c.user_id = ?
         ORDER BY c.created_at DESC 
         LIMIT ? OFFSET ?", $userId, $limit, $offset);
@@ -24,7 +25,7 @@ final class CommentsModel
         $userId = $loggedInUserId;
 
         $comments = $this->database->query("
-        SELECT c.*, u.username AS comment_creator,
+        SELECT c.*, u.username AS comment_creator, u.profile_picture, 
         EXISTS(SELECT 1 FROM Likes WHERE user_id = ? AND type = 'comment' AND liked_entity_id = c.id) AS liked
         FROM Comments c JOIN Users u ON c.user_id = u.id 
         WHERE c.post_id = ? ORDER BY created_at DESC", $userId, $postId);

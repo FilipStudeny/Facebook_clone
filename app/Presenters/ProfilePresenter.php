@@ -45,7 +45,7 @@ class ProfilePresenter extends Presenter
         $this->paginator->setItemCount($totalItemCount);
         if ($type === 'Posts') {
             $totalItemCount = $this->posts->getTotalCountByUser($username);
-            $this->template->posts = $this->posts->getAllPaginated($userId,$this->paginator->getOffset(), $this->paginator->getLength());
+            $this->template->posts = $this->posts->getAllPaginatedByUser($userId,$this->paginator->getOffset(), $this->paginator->getLength());
             $this->template->likes = [];
             $this->template->comments = [];
         } elseif ($type === 'Comments') {
@@ -78,6 +78,7 @@ class ProfilePresenter extends Presenter
         }
 
         $this->userModel->updateProfilePicture($userId, $imagePath);
+        $this->authenticator->wakeupIdentity($this->getUser()->identity);
     }
 
     private function uploadImage($croppedImageData, string $userId): string

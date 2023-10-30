@@ -1,8 +1,8 @@
 config/local.neon
 vendor
-bin
 temp
 node_modules
 .idea
 log
 www/images/*
+bin/ChatService/vendor
