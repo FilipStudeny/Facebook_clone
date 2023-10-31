@@ -26,6 +26,14 @@ final class UserModel
         $this->database->table('Users')->where('username', $username)->update(['role' => $role]);
     }
 
+    public function setUserBan(string $username, int $ban){
+        $this->database->table('Users')->where('username', $username)->update(['banned' => $ban]);
+    }
+
+    public function updateUser(string $username, array $data){
+        $this->database->table('Users')->where('username', $username)->update($data);
+    }
+
     public function getTotalCount()
     {
         return $this->database->table('users')->count('id');

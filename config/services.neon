@@ -6,6 +6,7 @@ services:
 	- App\Models\CommentsModel
 	- App\Models\LikeModel
 	- App\Models\MessagesModel
+	- App\Models\ReportModel
 
 search:
 	-	in: %appDir%

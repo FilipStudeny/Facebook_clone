@@ -1,0 +1,32 @@
+{block content}
+<div class="m-auto w-full flex flex-col items-center justify-center ">
+    <div class="w-full bg-white rounded-lg shadow-lg p-6 mt-2">
+        <h2 class="font-bold text-2xl mb-4">Report user {$reportedUser->username}</h2>
+
+        <form n:name="userReportForm" method="post">
+            <label hidden="hidden">
+                <input n:name="user_id" value="{$reportedUser->id}">
+            </label>
+            <div class="mb-4">
+                <label for="reason" class="block text-gray-700 text-sm font-bold mb-2">Select Reason for Reporting:</label>
+                <select n:name="reason" id="reason" name="reason" class="w-full border border-gray-300 rounded-md p-2">
+                    <option value="harassment" selected>Harassment</option>
+                    <option value="spam">Spam</option>
+                    <option value="inappropriate_content">Inappropriate Content</option>
+                    <option value="abusive_behavior">Abusive Behavior</option>
+                    <!-- Add other report reasons as needed -->
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Report Description:</label>
+                <textarea n:name="description" id="description" name="description" class="w-full border border-gray-300 rounded-md p-2" rows="4"></textarea>
+            </div>
+            <div class="flex items-center justify-end">
+                <button n:name="submit" type="submit" value="Submit Report" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Submit Report
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>

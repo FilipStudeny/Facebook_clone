@@ -29,7 +29,7 @@
         </div>
         <div class="w-auto p-2 m-2 flex flex-col">
             {if $profile->username !== $loggedInUser}
-                <a href="#" class="m-1 text-center w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                <a n:href="Profile:report $profile->username" class="m-1 text-center w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                     Report User
                 </a>
                 <a n:href="Chat:chat $profile->username, $loggedInUser" class="m-1 text-center w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

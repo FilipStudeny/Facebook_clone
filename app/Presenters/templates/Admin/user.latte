@@ -1,6 +1,6 @@
 {block content}
 <div class="w-full mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white">
-    <h2 class="bg-gray-900 text-white font-bold text-xl p-4 rounded-tl-lg rounded-tr-lg">Users</h2>
+    <h2 class="bg-gray-900 text-white font-bold text-xl p-4 rounded-tl-lg rounded-tr-lg">User {$selectedUser->username}</h2>
     <div class="flex items-center space-x-8 p-8">
         <div>
             <img src="{$selectedUser->profile_picture}" class="h-32 w-32 object-cover z-10" alt="Profile Picture">
@@ -36,6 +36,35 @@
             </div>
 
         </div>
+
+    </div>
+    <div class="w-full">
+        <form n:name="userEditForm" method="post" class="px-8">
+            <div class="w-full flex flex-row items-center ">
+                <label hidden="hidden">
+                    <input n:name="username" hidden="hidden" value="{$selectedUser->username}">
+                </label>
+                <div class="mx-1 flex-1 flex flex-col">
+                    <label for="role" class="text-gray-700 text-sm font-bold mb-2">Select Role:</label>
+                    <select id="role" n:name="role" class="bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="admin" {if $selectedUser->role === "admin"}selected{/if} >Administrator</option>
+                        <option value="user" {if $selectedUser->role === "user"}selected{/if} >Regular User</option>
+                    </select>
+                </div>
+                <div class="mx-1 flex-1 flex flex-col">
+                    <label for="ban-status" class="text-gray-700 text-sm font-bold mb-2">Select Ban Status:</label>
+                    <select id="ban-status" n:name="ban_status" class="bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="0" {if $selectedUser->banned === 0}selected{/if} >Not Banned</option>
+                        <option value="1" {if $selectedUser->banned === 1}selected{/if} >Banned</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center justify-end m-1 mt-2">
+                <button n:name="submit" type="submit" value="Edit user" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Edit user
+                </button>
+            </div>
+        </form>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full divide-y divide-gray-200">

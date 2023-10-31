@@ -1,0 +1,61 @@
+{block content}
+
+<div class="w-full mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white">
+    <div class="bg-gray-900 p-2 rounded-tl-lg rounded-tr-lg flex flex-row items-center justify-between">
+        <h2 class="text-white font-bold text-xl">{$reportedUser->username}</h2>
+        <a n:href="Admin:user $reportedUser->username" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            View to user profile
+        </a>
+    </div>
+    <div class="flex items-center space-x-8 p-8">
+        <div>
+            <img src="{$reportedUser->profile_picture}" class="h-32 w-32 object-cover z-10" alt="Profile Picture">
+        </div>
+        <div class="text-left border-l-2 border-gray-300 px-4">
+            <div class="mt-1 flex flex-row items-center justify-between">
+                <p>Username: <span class="text-gray-700 font-bold">{$reportedUser->username}</span></p>
+                <p>Email: <span class="text-gray-700 font-bold">{$reportedUser->email}</span></p>
+                <p>Gender: <span class="text-gray-700 font-bold">{$reportedUser->gender}</span></p>
+
+            </div>
+            <div class="mt-1 flex flex-row items-center justify-between">
+                <p>First name: <span class="text-gray-700 font-bold">{$reportedUser->firstname}</span></p>
+                <p>Last name: <span class="text-gray-700 font-bold">{$reportedUser->lastname}</span></p>
+            </div>
+            <div class="mt-2">
+                <p>Password: <span class="text-gray-700 font-bold">{$reportedUser->password}</span></p>
+            </div>
+            <div class="mt-3">
+                <p>Banned:
+                    {if $reportedUser->banned === 1}
+                        <span class="text-red-500 font-bold">True</span>
+                    {else}
+                        <span class="text-green-600 font-bold">Not Banned</span>
+                    {/if}
+                </p>
+                <p>Last login time: <span class="text-gray-700 font-bold">{$reportedUser->last_login_time}</span> </p>
+                <p>Role: <span class="text-green-600 font-bold">{$reportedUser->role}</span> </p>
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="w-full mx-auto rounded-lg overflow-hidden shadow-lg m-2 bg-white">
+    <h2 class="bg-gray-900 text-white font-bold text-xl p-4 rounded-tl-lg rounded-tr-lg">Report Information</h2>
+    <div class="px-8 py-6">
+        <p class="text-lg font-bold">Reason for Report: <span class="text-red-500">{$report->report_reason}</span></p>
+        <p class="text-gray-600 mt-2">Report ID: {$report->id}</p>
+        <div class="mt-4">
+            <p class="text-lg font-bold">Report Description:</p>
+            <p class="text-gray-600 whitespace-pre-line mt-2">{$report->report_description}</p>
+        </div>
+        <p class="text-gray-600 mt-4">Report Time: {$report->report_time}</p>
+    </div>
+</div>
+

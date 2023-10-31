@@ -65,6 +65,47 @@ class ProfilePresenter extends Presenter
         $this->template->profile = $user;
     }
 
+    public function renderReport(string $username): void{
+        $user = $this->userModel->getUser($username);
+        $this->template->reportedUser = $user;
+    }
+
+    public function createComponentUserReportForm(): Form
+    {
+        $form = new Form();
+        $form->addHidden('user_id');
+        $form->addSelect('reason', '', [
+            'harassment' => 'Harassment',
+            'spam' => 'Spam',
+            'inappropriate_content' => 'Inappropriate Content',
+            'abusive_behavior' => 'Abusive Behavior'
+        ]);
+        $form->addTextArea('description');
+        $form->addSubmit('submit');
+        $form->onSuccess[] = [$this, 'reportFormSucceed'];
+        return $form;
+    }
+
+    public function reportFormSucceed(Form $form, \stdClass $values): void{
+        $user_id = $values->user_id;
+        $reporter_id = $this->getUser()->id;
+        $report_description = $values->description;
+        $report_type = $values->reason;
+        $createdAt = new DateTime();
+
+        $this->database->table('user_reports')->insert([
+            'user_id' => $user_id,
+            'reporter_id' => $reporter_id,
+            'report_reason' => $report_type,
+            'report_description' => $report_description,
+            'report_time' => $createdAt
+        ]);
+
+        $this->redirect('Home:default');
+
+    }
+
+
     /**
      * @throws AbortException
      */
